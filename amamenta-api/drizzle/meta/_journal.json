@@ -15,6 +15,20 @@
       "when": 1773234697315,
       "tag": "0001_amusing_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773493125384,
+      "tag": "0002_violet_roxanne_simpson",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773585349181,
+      "tag": "0003_silly_galactus",
+      "breakpoints": true
     }
   ]
 }

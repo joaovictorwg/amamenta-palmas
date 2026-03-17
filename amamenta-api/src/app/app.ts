@@ -10,7 +10,8 @@ import { fastifySwagger } from "@fastify/swagger";
 import { fastifyCors } from "@fastify/cors";
 import ScalarApiReference from "@scalar/fastify-api-reference";
 
-import { registerRoutes } from "./routes";
+import { routes } from "./routes";
+import { errorHandler } from "./errorHandler";
 
 export const app = fastify({
   logger: true,
@@ -43,5 +44,8 @@ app.register(ScalarApiReference, {
   routePrefix: "/docs",
 });
 
+// error handler
+errorHandler(app);
+
 // Rotas da aplicação
-app.register(registerRoutes);
+app.register(routes);
