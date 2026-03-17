@@ -1,7 +1,6 @@
 import { FastifyInstance } from "fastify";
+import { donatorRoutes } from "../modules/donator/routes/donator.routes";
 
-export async function registerRoutes(app: FastifyInstance) {
-  // TODO implement routes on modules (users/routes.ts)
-  // app.register(authRoutes, { prefix: "/auth" })
-  // app.register(userRoutes, { prefix: "/users" })
+export async function routes(app: FastifyInstance) {
+  await app.register(donatorRoutes);
 }
