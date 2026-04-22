@@ -1,3 +1,4 @@
+import { error } from "node:console";
 import { Donator, DonatorStatus } from "../../entities/donator.entity";
 import { DonatorRepository } from "../../repositories/donator.repository";
 
@@ -7,16 +8,20 @@ interface CreateDonatorRequest {
   address: string;
 }
 
-export class CreateDonatorUseCase {
-  constructor(private donatorRepository: DonatorRepository) {}
+// export class CreateDonatorUseCase {
+//   constructor(private donatorRepository: DonatorRepository) { }
 
-  async execute(data: CreateDonatorRequest): Promise<Donator> {
-    const donator = await this.donatorRepository.create({
-      ...data,
-      status: "active" as DonatorStatus,
-      createdAt: new Date(),
-    });
+//   async execute(data: CreateDonatorRequest): Promise<Donator> {
 
-    return donator;
-  }
-}
+//     if (telefone repetido) {
+//       return erro
+//     }
+//     const donator = await this.donatorRepository.create({
+//       ...data,
+//       status: "active" as DonatorStatus,
+//       createdAt: new Date(),
+//     });
+
+//     return donator;
+//   }
+// }

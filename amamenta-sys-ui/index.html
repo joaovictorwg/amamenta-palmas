@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amamenta — Dev Tester</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        header span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        nav {
+            display: flex;
+            gap: 0.25rem;
+            background: #1e293b;
+            padding: 0 2rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        nav button.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+        }
+
+        nav button:hover {
+            color: #e2e8f0;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: #f1f5f9;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 0.3rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            margin-bottom: 0.9rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #38bdf8;
+        }
+
+        button.btn {
+            background: #0ea5e9;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.55rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+            width: 100%;
+        }
+
+        button.btn:hover {
+            background: #0284c7;
+        }
+
+        button.btn:disabled {
+            background: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .response {
+            margin-top: 1rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-size: 0.78rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 220px;
+            overflow-y: auto;
+            color: #a3e635;
+            display: none;
+        }
+
+        .response.error {
+            color: #f87171;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .token-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: #fbbf24;
+            word-break: break-all;
+            margin-bottom: 0.9rem;
+        }
+
+        .token-box span {
+            color: #94a3b8;
+            font-size: 0.7rem;
+        }
+
+        .info {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-bottom: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Amamenta Dev Tester</h1>
+        <span>API: <span id="api-base-display">http://localhost:3333</span></span>
+    </header>
+
+    <nav>
+        <button class="active" onclick="showPage('login')">Login</button>
+        <button onclick="showPage('tenant')">Criar Tenant</button>
+        <button onclick="showPage('invite')">Criar Invite</button>
+        <button onclick="showPage('register')">Registrar Employee</button>
+        <button onclick="showPage('verify')">Verificar Email</button>
+        <button onclick="showPage('config')">Config</button>
+    </nav>
+
+    <main>
+
+        <!-- ======================== LOGIN ======================== -->
+        <div class="page active" id="page-login">
+            <h2>Login</h2>
+            <div class="card">
+                <h3>POST /auth/login</h3>
+                <label>Email</label>
+                <input id="login-email" type="email" placeholder="admin@exemplo.com" />
+                <label>Senha</label>
+                <input id="login-password" type="password" placeholder="••••••••" />
+                <button class="btn" onclick="doLogin()">Entrar</button>
+                <div class="response" id="login-res"></div>
+            </div>
+
+            <div class="card">
+                <h3>Token Ativo</h3>
+                <p class="info">O token salvo aqui será enviado automaticamente nos endpoints que exigem autenticação.
+                </p>
+                <div class="token-box" id="token-display"><span>nenhum token salvo</span></div>
+                <button class="btn" style="background:#ef4444" onclick="clearToken()">Limpar Token</button>
+            </div>
+        </div>
+
+        <!-- ======================== TENANT ======================== -->
+        <div class="page" id="page-tenant">
+            <h2>Criar Tenant <span style="font-size:0.75rem;color:#64748b">(requer super_admin)</span></h2>
+            <div class="card">
+                <h3>POST /tenants</h3>
+                <label>Nome</label>
+                <input id="tenant-name" type="text" placeholder="Hospital Dona Regina" />
+                <label>Domínio</label>
+                <input id="tenant-domain" type="text" placeholder="donaregina.com" />
+                <label>Auto Join por Domínio</label>
+                <select id="tenant-autojoin">
+                    <option value="false">Não</option>
+                    <option value="true">Sim</option>
+                </select>
+                <button class="btn" onclick="doCreateTenant()">Criar Tenant</button>
+                <div class="response" id="tenant-res"></div>
+            </div>
+        </div>
+
+        <!-- ======================== INVITE ======================== -->
+        <div class="page" id="page-invite">
+            <h2>Criar Invite</h2>
+
+            <div class="card">
+                <h3>POST /invites/admin <span style="color:#64748b">(super_admin)</span></h3>
+                <p class="info">Cria um invite para um novo Admin. Informe o nome ou o domínio do tenant.</p>
+                <label>Email</label>
+                <input id="invite-admin-email" type="email" placeholder="admin@hospital.com" />
+                <label>Tenant (nome ou domínio)</label>
+                <input id="invite-admin-tenant-identifier" type="text"
+                    placeholder="Hospital Dona Regina ou donaregina.com" />
+                <button class="btn" onclick="doInviteAdmin()">Enviar Invite Admin</button>
+                <div class="response" id="invite-admin-res"></div>
+            </div>
+
+            <div class="card">
+                <h3>POST /invites/employee <span style="color:#64748b">(admin)</span></h3>
+                <p class="info">O tenantId é pego automaticamente do JWT do admin logado.</p>
+                <label>Email</label>
+                <input id="invite-employee-email" type="email" placeholder="func@hospital.com" />
+                <button class="btn" onclick="doInviteEmployee()">Enviar Invite Employee</button>
+                <div class="response" id="invite-employee-res"></div>
+            </div>
+
+            <div class="card">
+                <h3>POST /invites/accept</h3>
+                <p class="info">Se o email abrir esta pagina com <code>?inviteToken=...</code>, o token sera preenchido
+                    automaticamente.</p>
+                <label>Token do Invite</label>
+                <input id="accept-token" type="text" placeholder="uuid recebido no invite" />
+                <label>Senha</label>
+                <input id="accept-password" type="password" placeholder="••••••••" />
+                <button class="btn" onclick="doAcceptInvite()">Aceitar Invite</button>
+                <div class="response" id="accept-res"></div>
+            </div>
+        </div>
+
+        <!-- ======================== REGISTER ======================== -->
+        <div class="page" id="page-register">
+            <h2>Registrar Employee por Domínio</h2>
+            <div class="card">
+                <h3>POST /auth/register-employee</h3>
+                <p class="info">O tenant precisa ter <b>autoJoinByDomain = true</b> e domínio configurado. O email
+                    enviado deve pertencer ao domínio do tenant.</p>
+                <label>Email</label>
+                <input id="reg-email" type="email" placeholder="joao@donaregina.com" />
+                <label>Senha</label>
+                <input id="reg-password" type="password" placeholder="••••••••" />
+                <button class="btn" onclick="doRegister()">Criar Conta</button>
+                <div class="response" id="reg-res"></div>
+            </div>
+
+            <div class="card">
+                <h3>POST /auth/resend-verification-email</h3>
+                <label>Email</label>
+                <input id="resend-email" type="email" placeholder="joao@donaregina.com" />
+                <button class="btn" onclick="doResend()">Reenviar Email de Verificação</button>
+                <div class="response" id="resend-res"></div>
+            </div>
+        </div>
+
+        <!-- ======================== VERIFY ======================== -->
+        <div class="page" id="page-verify">
+            <h2>Verificar Email</h2>
+            <div class="card">
+                <h3>POST /auth/verify-email</h3>
+                <p class="info">Cole aqui o token recebido no email (ou extraído da URL <code>?token=...</code>).</p>
+                <label>Token de Verificação</label>
+                <input id="verify-token" type="text" placeholder="eyJhbGci..." />
+                <button class="btn" onclick="doVerify()">Verificar</button>
+                <div class="response" id="verify-res"></div>
+            </div>
+        </div>
+
+        <!-- ======================== CONFIG ======================== -->
+        <div class="page" id="page-config">
+            <h2>Configuração</h2>
+            <div class="card">
+                <h3>URL da API</h3>
+                <label>Base URL</label>
+                <input id="api-base-input" type="text" value="http://localhost:3333" />
+                <button class="btn" onclick="saveConfig()">Salvar</button>
+                <div class="response show" style="color:#a3e635;display:block;margin-top:0.5rem" id="config-res"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ─── state ───────────────────────────────────────────────
+        let API_BASE = localStorage.getItem("api_base") || "http://localhost:3333";
+        let TOKEN = localStorage.getItem("jwt_token") || "";
+
+        document.getElementById("api-base-input").value = API_BASE;
+        document.getElementById("api-base-display").textContent = API_BASE;
+        renderToken();
+        initializeFromQueryParams();
+
+        // ─── navigation ──────────────────────────────────────────
+        function showPage(name) {
+            document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+            document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+            document.getElementById("page-" + name).classList.add("active");
+            event.target.classList.add("active");
+        }
+
+        function activatePage(name) {
+            document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+            document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+            document.getElementById("page-" + name).classList.add("active");
+
+            const button = Array.from(document.querySelectorAll("nav button"))
+                .find(b => b.getAttribute("onclick") === `showPage('${name}')`);
+
+            if (button) {
+                button.classList.add("active");
+            }
+        }
+
+        function initializeFromQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            const inviteToken = params.get("inviteToken");
+            const verificationToken = params.get("token");
+
+            if (inviteToken) {
+                document.getElementById("accept-token").value = inviteToken;
+                activatePage("invite");
+            }
+
+            if (verificationToken) {
+                document.getElementById("verify-token").value = verificationToken;
+                activatePage("verify");
+            }
+        }
+
+        // ─── helpers ─────────────────────────────────────────────
+        function renderToken() {
+            const el = document.getElementById("token-display");
+            el.innerHTML = TOKEN
+                ? TOKEN.substring(0, 40) + "..."
+                : '<span>nenhum token salvo</span>';
+        }
+
+        function clearToken() {
+            TOKEN = "";
+            localStorage.removeItem("jwt_token");
+            renderToken();
+        }
+
+        function saveConfig() {
+            API_BASE = document.getElementById("api-base-input").value.trim().replace(/\/$/, "");
+            localStorage.setItem("api_base", API_BASE);
+            document.getElementById("api-base-display").textContent = API_BASE;
+            document.getElementById("config-res").textContent = "Salvo: " + API_BASE;
+        }
+
+        function headers(auth = false) {
+            const h = { "Content-Type": "application/json" };
+            if (auth && TOKEN) h["Authorization"] = "Bearer " + TOKEN;
+            return h;
+        }
+
+        async function call(elId, method, path, body, auth = false) {
+            const el = document.getElementById(elId);
+            el.classList.remove("error");
+            el.classList.add("show");
+            el.textContent = "...";
+            try {
+                const res = await fetch(API_BASE + path, {
+                    method,
+                    headers: headers(auth),
+                    body: body ? JSON.stringify(body) : undefined,
+                });
+                const data = await res.json();
+                el.textContent = JSON.stringify(data, null, 2);
+                if (!res.ok) el.classList.add("error");
+                return { ok: res.ok, data };
+            } catch (e) {
+                el.textContent = "Erro de rede: " + e.message;
+                el.classList.add("error");
+                return { ok: false };
+            }
+        }
+
+        // ─── login ───────────────────────────────────────────────
+        async function doLogin() {
+            const r = await call("login-res", "POST", "/auth/login", {
+                email: document.getElementById("login-email").value,
+                password: document.getElementById("login-password").value,
+            });
+            if (r.ok && r.data.token) {
+                TOKEN = r.data.token;
+                localStorage.setItem("jwt_token", TOKEN);
+                renderToken();
+            }
+        }
+
+        // ─── tenant ──────────────────────────────────────────────
+        async function doCreateTenant() {
+            await call("tenant-res", "POST", "/tenants", {
+                name: document.getElementById("tenant-name").value,
+                domain: document.getElementById("tenant-domain").value,
+                autoJoinByDomain: document.getElementById("tenant-autojoin").value === "true",
+            }, true);
+        }
+
+        // ─── invites ─────────────────────────────────────────────
+        async function doInviteAdmin() {
+            await call("invite-admin-res", "POST", "/invites/admin", {
+                email: document.getElementById("invite-admin-email").value,
+                tenantIdentifier: document.getElementById("invite-admin-tenant-identifier").value,
+            }, true);
+        }
+
+        async function doInviteEmployee() {
+            await call("invite-employee-res", "POST", "/invites/employee", {
+                email: document.getElementById("invite-employee-email").value,
+            }, true);
+        }
+
+        async function doAcceptInvite() {
+            await call("accept-res", "POST", "/invites/accept", {
+                token: document.getElementById("accept-token").value,
+                password: document.getElementById("accept-password").value,
+            });
+        }
+
+        // ─── register ────────────────────────────────────────────
+        async function doRegister() {
+            await call("reg-res", "POST", "/auth/register-employee", {
+                email: document.getElementById("reg-email").value,
+                password: document.getElementById("reg-password").value,
+            });
+        }
+
+        async function doResend() {
+            await call("resend-res", "POST", "/auth/resend-verification-email", {
+                email: document.getElementById("resend-email").value,
+            });
+        }
+
+        // ─── verify ──────────────────────────────────────────────
+        async function doVerify() {
+            const raw = document.getElementById("verify-token").value.trim();
+            const token = raw.includes("token=") ? new URLSearchParams(raw.split("?")[1]).get("token") : raw;
+            await call("verify-res", "POST", "/auth/verify-email", { token });
+        }
+    </script>
+</body>
+
+</html>

@@ -3,8 +3,8 @@ import { DrizzleDonatorRepository } from "../repositories/drizzleDonator.reposit
 import { CreateDonatorUseCase } from "../useCases/createDonator/createDonator.usecase";
 
 export async function createDonatorController(
-  request: FastifyRequest,
-  reply: FastifyReply,
+  request: FastifyRequest, // recebe requisição
+  reply: FastifyReply, // resposta pro usuario
 ) {
   const repository = new DrizzleDonatorRepository();
   const useCase = new CreateDonatorUseCase(repository);

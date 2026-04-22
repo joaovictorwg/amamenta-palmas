@@ -4,8 +4,8 @@ import { DonatorRepository } from "./donator.repository";
 import { Donator } from "../entities/donator.entity";
 import { and, count, desc, eq, ilike } from "drizzle-orm";
 import { AppError } from "@/shared/errors/AppError";
-import { GetDonatorsRequestDTO } from "../dtos/getDonators.dto";
 import { PaginationMeta } from "../dtos/pagination.dto";
+import { GetDonatorsRequestDTO } from "../dtos/getDonators.dto";
 
 export class DrizzleDonatorRepository implements DonatorRepository {
   async create(data: Omit<Donator, "id">): Promise<Donator> {

@@ -12,7 +12,7 @@ import { DeleteDonatorController } from "../controllers/deleteDonator.controller
 export async function donatorRoutes(app: FastifyInstance) {
   app.post(
     "/donators",
-    { schema: { body: createDonatorSchema } },
+    { schema: { body: createDonatorSchema } }, // dados que user manda
     createDonatorController,
   );
 
