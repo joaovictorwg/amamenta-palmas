@@ -6,6 +6,8 @@ import {
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 
+import { donationsRoutes } from "@/modules/donation/routes/donations.routes";
+
 import { fastifySwagger } from "@fastify/swagger";
 import { fastifyCors } from "@fastify/cors";
 import ScalarApiReference from "@scalar/fastify-api-reference";
@@ -20,6 +22,7 @@ export const app = fastify({
 // Zod validation
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
+app.register(donationsRoutes);
 
 // CORS
 app.register(fastifyCors, {
