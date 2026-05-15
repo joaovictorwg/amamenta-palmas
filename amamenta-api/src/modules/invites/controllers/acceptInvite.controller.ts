@@ -4,6 +4,7 @@ import { AcceptInviteUseCase } from "../use-cases/acceptInvite.usecase";
 import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
 import { DrizzleTenantRepository } from "@/modules/tenants/repositories/drizzleTenant.repository";
 import { AcceptInviteInput } from "../schemas/acceptInvite.schema";
+import { t, SupportedLang } from "@/shared/i18n";
 
 export async function acceptInviteController(
     request: FastifyRequest,
@@ -19,5 +20,12 @@ export async function acceptInviteController(
 
     const user = await useCase.execute({ token, password });
 
-    return reply.send(user);
+    // Detecta idioma do header ou usa pt
+    const lang: SupportedLang = (request.headers['accept-language']?.toString().startsWith('en') ? 'en' : 'pt');
+
+    return reply.send({
+        success: true,
+        message: t('success.invite_accepted', lang),
+        user,
+    });
 }

@@ -20,13 +20,14 @@ export class AcceptInviteUseCase {
     async execute({ token, password }: Request) {
         const invite = await this.inviteRepository.findByToken(token);
 
-        if (!invite) throw new NotFoundError("Invite");
-        if (invite.used) throw new AppError("Invite already used");
-        if (new Date() > invite.expiresAt) throw new AppError("Invite expired");
+
+        if (!invite) throw new AppError("i18n:errors.invalid_invite_token", 400);
+        if (invite.used) throw new AppError("i18n:errors.invite_already_used", 400);
+        if (new Date() > invite.expiresAt) throw new AppError("i18n:errors.invalid_invite_token", 400);
 
         const tenant = await this.tenantRepository.findById(invite.tenantId);
 
-        if (!tenant) throw new NotFoundError("Tenant");
+        if (!tenant) throw new AppError("i18n:errors.tenant_not_found", 404);
 
         if (tenant.domain) {
             const emailDomain = invite.email.split("@")[1];
@@ -34,13 +35,18 @@ export class AcceptInviteUseCase {
             const subdomainMatch = emailDomain.endsWith(`.${tenant.domain}`);
 
             if (!sameDomain && !subdomainMatch) {
-                throw new AppError(
-                    `Email must belong to domain @${tenant.domain}`
-                );
+                throw new AppError("i18n:errors.forbidden", 403);
             }
         }
 
         const passwordHash = await hashPassword(password);
+
+
+        // Verifica se usuário já existe
+        const existingUser = await this.userRepository.findByEmail(invite.email);
+        if (existingUser) {
+            throw new AppError("i18n:errors.user_already_exists", 409);
+        }
 
         const user = await this.userRepository.create({
             email: invite.email,

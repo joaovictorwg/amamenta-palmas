@@ -21,7 +21,7 @@ export function buildInviteEmailMessage({ role, tenantName, token }: Params) {
     ].join("\n");
 
     const html = [
-        `<h2>Convite para ${tenantName}</h2>`,
+        `<h2>Convite para ${tenantName} no Amamenta Brasil</h2>`,
         `<p>Voce recebeu um convite para entrar como <strong>${roleLabel}</strong>.</p>`,
         `<p>Token do convite:</p>`,
         `<pre style="padding:12px;border-radius:8px;background:#f1f5f9">${token}</pre>`,

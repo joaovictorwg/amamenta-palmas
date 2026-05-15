@@ -6,7 +6,7 @@ import { DrizzleTenantRepository } from "@/modules/tenants/repositories/drizzleT
 import { normalizeDomain } from "@/modules/tenants/utils/normalizeDomain";
 import { AppError } from "@/shared/errors/AppError";
 import { NotFoundError } from "@/shared/errors/NotFoundError";
-import { NodemailerProvider } from "@/shared/mail/nodemailer.provider";
+import { EmailService } from "@/shared/mail/email.service";
 import { Tenant } from "@/modules/tenants/entities/tenant.entity";
 
 async function resolveTenantId(
@@ -49,7 +49,7 @@ export async function createAdminInviteController(
     const { email, tenantId, tenantIdentifier } = request.body as CreateAdminInviteInput;
 
     const repo = new DrizzleInviteRepository();
-    const mailProvider = new NodemailerProvider();
+    const mailProvider = new EmailService();
     const useCase = new CreateInviteUseCase(repo, mailProvider);
     const tenant = await resolveTenantId(tenantId, tenantIdentifier);
 
@@ -74,7 +74,7 @@ export async function createEmployeeInviteController(
 
     const repo = new DrizzleInviteRepository();
     const tenantRepository = new DrizzleTenantRepository();
-    const mailProvider = new NodemailerProvider();
+    const mailProvider = new EmailService();
     const useCase = new CreateInviteUseCase(repo, mailProvider);
     const tenant = await tenantRepository.findById(tenantId);
 
