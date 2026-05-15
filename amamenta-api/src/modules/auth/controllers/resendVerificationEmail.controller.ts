@@ -1,5 +1,5 @@
 import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
-import { NodemailerProvider } from "@/shared/mail/nodemailer.provider";
+import { EmailService } from "@/shared/mail/email.service";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ResendVerificationEmailInput } from "../schemas/resendVerificationEmail.schema";
 import { ResendVerificationEmailUseCase } from "../use-cases/resendVerificationEmail.usecase";
@@ -11,7 +11,7 @@ export async function resendVerificationEmailController(
     const { email } = request.body as ResendVerificationEmailInput;
 
     const userRepository = new DrizzleUserRepository();
-    const mailProvider = new NodemailerProvider();
+    const mailProvider = new EmailService();
 
     const useCase = new ResendVerificationEmailUseCase(
         userRepository,

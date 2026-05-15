@@ -10,7 +10,9 @@ export const env = {
   emailSecure: process.env.EMAIL_SECURE === "true",
   emailUser: process.env.EMAIL_USER || "",
   emailPass: process.env.EMAIL_PASS || "",
+
   emailFrom: process.env.EMAIL_FROM || "",
+  resendApiKey: process.env.RESEND_API_KEY || "",
 
   SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD,
   SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL,
