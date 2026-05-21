@@ -32,11 +32,7 @@ export default function RootLayout() {
 
     const handleTabChange = (index: number) => {
         if (index === 0) {
-            navigate("/")
-        }
-
-        if (index === 1) {
-            navigate("/about")
+            navigate("/app-configuration")
         }
     }
 
@@ -48,7 +44,7 @@ export default function RootLayout() {
             />
 
             <BrTab
-                items={[t("amamenta.home"), t("amamenta.about"),]}
+                items={[t("amamenta.appConfiguration")]}
                 activeIndex={tabIndex}
                 onChange={handleTabChange}
                 children={undefined}

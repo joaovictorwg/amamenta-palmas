@@ -1,5 +1,6 @@
 import { BrHeader, type BrHeaderProps } from "@govbr-ds/react-components";
 import { useTranslation } from "react-i18next";
+import AvatarMenu from "./components/AvatarMenu/AvatarMenu";
 
 export default function Header(props: BrHeaderProps) {
     const { title, subTitle, urlLogo } = props
@@ -15,7 +16,7 @@ export default function Header(props: BrHeaderProps) {
             signature="Amamenta Palmas"
             title={title}
             subTitle={subTitle}
-            urlLogo={urlLogo}
+            urlLogo={urlLogo ?? "https://www.gov.br/ds/assets/img/govbr-logo.png"}
             quickAccessLinks={[
                 {
                     label: t("amamenta.language.ptBR"),
@@ -26,12 +27,8 @@ export default function Header(props: BrHeaderProps) {
                     onClick: () => changeLanguage("en")
                 }
             ]}
-            features={[
-                {
-                    label: "Configurações",
-                    icon: "cog",
-                }
-            ]}
+            loggedIn
+            avatar={<AvatarMenu />}
         />
     )
 };
