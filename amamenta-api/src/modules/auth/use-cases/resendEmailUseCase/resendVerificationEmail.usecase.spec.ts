@@ -1,8 +1,8 @@
 import { ResendVerificationEmailUseCase } from "./resendVerificationEmail.usecase";
-import { FakeMailProvider } from "../tests/fakes/fakeMailProvider";
-import { FakeUserRepository } from "../tests/fakes/fakeUserRepository";
-import { assertCanResendVerification } from "../utils/resendVerificationRateLimiter";
-import { sendVerificationEmail } from "../utils/sendVerificationEmail";
+import { FakeMailProvider } from "../../tests/fakes/fakeMailProvider";
+import { FakeUserRepository } from "../../tests/fakes/fakeUserRepository";
+import { assertCanResendVerification } from "../../utils/resendVerificationRateLimiter";
+import { sendVerificationEmail } from "../../utils/sendVerificationEmail";
 
 jest.mock("../utils/resendVerificationRateLimiter", () => ({
     assertCanResendVerification: jest.fn(),

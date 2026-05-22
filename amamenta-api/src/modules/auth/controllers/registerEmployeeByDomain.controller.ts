@@ -3,7 +3,7 @@ import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.
 import { EmailService } from "@/shared/mail/email.service";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RegisterEmployeeByDomainInput } from "../schemas/registerEmployeeByDomain.schema";
-import { RegisterEmployeeByDomainUseCase } from "../use-cases/registerEmployeeByDomain.usecase";
+import { RegisterEmployeeByDomainUseCase } from "../use-cases/registerUseCase/registerEmployeeByDomain.usecase";
 
 export async function registerEmployeeByDomainController(
     request: FastifyRequest,

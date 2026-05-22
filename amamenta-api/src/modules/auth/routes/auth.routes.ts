@@ -7,9 +7,10 @@ import { authenticateSchema } from "../schemas/authenticate.schema";
 import { registerEmployeeByDomainSchema } from "../schemas/registerEmployeeByDomain.schema";
 import { resendVerificationEmailSchema } from "../schemas/resendVerificationEmail.schema";
 import { verifyEmailSchema } from "../schemas/verifyEmail.schema";
-import { authenticate } from "@/shared/middlewares/authenticate";
-import { GetAuthUserUseCase } from "@/modules/users/use-cases/getAuthUser.usecase";
-import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
+import { forgotPasswordSchema } from "../schemas/forgotPassword.schema";
+import { forgotPasswordController } from "../controllers/forgotPassword.controller";
+import { resetPasswordSchema } from "../schemas/resetPassword.schema";
+import { resetPasswordController } from "../controllers/resetPassword.controller";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post(
@@ -52,19 +53,23 @@ export async function authRoutes(app: FastifyInstance) {
     authenticateController
   );
 
-  app.get(
-    "/auth/user",
+  app.post(
+    "/auth/forgot-password",
     {
-      preHandler: [authenticate],
+      schema: {
+        body: forgotPasswordSchema,
+      },
     },
-    async (request) => {
-      const userRepository = new DrizzleUserRepository();
+    forgotPasswordController
+  );
 
-      const useCase = new GetAuthUserUseCase(userRepository);
-
-      const user = await useCase.execute(request.user.id);
-
-      return { user };
-    }
+  app.post(
+    "/auth/reset-password",
+    {
+      schema: {
+        body: resetPasswordSchema,
+      },
+    },
+    resetPasswordController
   );
 }

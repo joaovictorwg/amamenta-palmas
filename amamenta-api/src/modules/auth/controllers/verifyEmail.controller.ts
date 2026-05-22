@@ -1,7 +1,7 @@
 import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { VerifyEmailInput } from "../schemas/verifyEmail.schema";
-import { VerifyEmailUseCase } from "../use-cases/verifyEmail.usecase";
+import { VerifyEmailUseCase } from "../use-cases/verifyEmailUseCase/verifyEmail.usecase";
 
 export async function verifyEmailController(
     request: FastifyRequest,

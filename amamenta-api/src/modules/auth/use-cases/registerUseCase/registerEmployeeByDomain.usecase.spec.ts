@@ -1,9 +1,9 @@
 import { AppError } from "@/shared/errors/AppError";
 import { RegisterEmployeeByDomainUseCase } from "./registerEmployeeByDomain.usecase";
-import { FakeMailProvider } from "../tests/fakes/fakeMailProvider";
-import { FakeTenantRepository } from "../tests/fakes/fakeTenantRepository";
-import { FakeUserRepository } from "../tests/fakes/fakeUserRepository";
-import { sendVerificationEmail } from "../utils/sendVerificationEmail";
+import { FakeMailProvider } from "../../tests/fakes/fakeMailProvider";
+import { FakeTenantRepository } from "../../tests/fakes/fakeTenantRepository";
+import { FakeUserRepository } from "../../tests/fakes/fakeUserRepository";
+import { sendVerificationEmail } from "../../utils/sendVerificationEmail";
 
 jest.mock("../utils/sendVerificationEmail", () => ({
     sendVerificationEmail: jest.fn(),

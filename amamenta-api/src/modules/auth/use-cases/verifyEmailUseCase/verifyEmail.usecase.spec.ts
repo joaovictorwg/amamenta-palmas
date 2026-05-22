@@ -1,6 +1,6 @@
 import { AppError } from "@/shared/errors/AppError";
 import { VerifyEmailUseCase } from "./verifyEmail.usecase";
-import { FakeUserRepository } from "../tests/fakes/fakeUserRepository";
+import { FakeUserRepository } from "../../tests/fakes/fakeUserRepository";
 import { verifyEmailVerificationToken } from "@/shared/utils/jwt";
 
 jest.mock("@/shared/utils/jwt", () => ({

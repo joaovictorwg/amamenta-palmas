@@ -3,7 +3,7 @@ import { UserRepository } from "@/modules/users/repositories/user.repository";
 import { AppError } from "@/shared/errors/AppError";
 import { MailProvider } from "@/shared/mail/mail.provider";
 import { hashPassword } from "@/shared/utils/hash";
-import { sendVerificationEmail } from "../utils/sendVerificationEmail";
+import { sendVerificationEmail } from "../../utils/sendVerificationEmail";
 
 interface Request {
     email: string;

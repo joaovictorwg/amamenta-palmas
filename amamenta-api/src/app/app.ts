@@ -14,10 +14,14 @@ import ScalarApiReference from "@scalar/fastify-api-reference";
 
 import { routes } from "./routes";
 import { errorHandler } from "./errorHandler";
+import i18next, { i18nextMiddleware } from "@/shared/i18n/i18next";
 
 export const app = fastify({
   logger: true,
 }).withTypeProvider<ZodTypeProvider>();
+
+// i18next middleware
+app.register(i18nextMiddleware.plugin, { i18next });
 
 // Zod validation
 app.setValidatorCompiler(validatorCompiler);
