@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
 
-import { getUser, logout } from "@/services/auth";
+import { useAuth } from "@/contexts/AuthContext/useAuth";
 import { BrAvatar, BrButton, BrNotification } from "@govbr-ds/react-components";
 import { useTranslation } from "react-i18next";
 
 import * as styled from "./styles";
 
 export default function AvatarMenu() {
-    const user = getUser();
+    const { user, logout } = useAuth();
+
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -31,7 +32,8 @@ export default function AvatarMenu() {
                             {
                                 content: t("amamenta.profile"),
                                 icon: "user",
-                                onClick: () => window.alert("/profile"),
+                                onClick: () =>
+                                    window.alert("/profile"),
                                 closeOnClick: true,
                             },
                             {
@@ -46,7 +48,10 @@ export default function AvatarMenu() {
                 </styled.AvatarMenuDropdown>
             }
         >
-            <BrAvatar src="https://picsum.photos/id/517/400" type="image" />
+            <BrAvatar
+                src="https://picsum.photos/id/517/400"
+                type="image"
+            />
         </BrButton>
     );
 }

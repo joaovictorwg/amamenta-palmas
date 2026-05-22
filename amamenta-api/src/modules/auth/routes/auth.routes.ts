@@ -7,6 +7,9 @@ import { authenticateSchema } from "../schemas/authenticate.schema";
 import { registerEmployeeByDomainSchema } from "../schemas/registerEmployeeByDomain.schema";
 import { resendVerificationEmailSchema } from "../schemas/resendVerificationEmail.schema";
 import { verifyEmailSchema } from "../schemas/verifyEmail.schema";
+import { authenticate } from "@/shared/middlewares/authenticate";
+import { GetAuthUserUseCase } from "@/modules/users/use-cases/getAuthUser.usecase";
+import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post(
@@ -47,5 +50,21 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     authenticateController
+  );
+
+  app.get(
+    "/auth/user",
+    {
+      preHandler: [authenticate],
+    },
+    async (request) => {
+      const userRepository = new DrizzleUserRepository();
+
+      const useCase = new GetAuthUserUseCase(userRepository);
+
+      const user = await useCase.execute(request.user.id);
+
+      return { user };
+    }
   );
 }

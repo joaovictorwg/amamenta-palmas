@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { api } from "@/services/api";
-import { saveAuth } from "@/services/auth";
+import { saveToken } from "@/services/auth";
 
 import { ALLOWED_DASHBOARD_ROLES, ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext/useAuth";
 
 interface Errors {
     email?: string;
@@ -24,6 +25,8 @@ export function useLogin() {
     const [loading, setLoading] = useState(false);
 
     const [errors, setErrors] = useState<Errors>({});
+
+    const { setUser } = useAuth();
 
     function clearError(field: keyof Errors) {
         setErrors((prev) => ({
@@ -64,7 +67,9 @@ export function useLogin() {
 
             const { token, user } = response.data;
 
-            saveAuth(token, user);
+            saveToken(token);
+
+            setUser(user);;
 
             if (user.role === ROLES.SUPER_ADMIN) {
                 navigate("/app-configuration");

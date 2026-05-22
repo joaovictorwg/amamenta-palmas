@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
-import { getToken, getUser } from "../services/auth";
+import { useAuth } from "@/contexts/AuthContext/useAuth";
 import type { UserRole } from "../types/auth";
 
 type Props = {
@@ -12,10 +12,12 @@ export default function ProtectedRoute({
     children,
     allowedRoles,
 }: Props) {
-    const token = getToken();
-    const user = getUser();
+    const { user, loading } = useAuth();
+    if (loading) {
+        return null;
+    }
 
-    if (!token || !user) {
+    if (!user) {
         return (
             <Navigate to="/login" replace />
         );
