@@ -1,7 +1,7 @@
 import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
 import { FastifyRequest, FastifyReply } from "fastify";
 import { LoginInput } from "../schemas/authenticate.schema";
-import { AuthenticateUserUseCase } from "../use-cases/login.usecase";
+import { AuthenticateUserUseCase } from "../use-cases/loginUseCase/login.usecase";
 
 export async function authenticateController(
   request: FastifyRequest,

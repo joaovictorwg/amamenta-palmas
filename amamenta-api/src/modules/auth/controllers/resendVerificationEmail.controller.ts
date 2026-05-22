@@ -2,7 +2,7 @@ import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.
 import { EmailService } from "@/shared/mail/email.service";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ResendVerificationEmailInput } from "../schemas/resendVerificationEmail.schema";
-import { ResendVerificationEmailUseCase } from "../use-cases/resendVerificationEmail.usecase";
+import { ResendVerificationEmailUseCase } from "../use-cases/resendEmailUseCase/resendVerificationEmail.usecase";
 
 export async function resendVerificationEmailController(
     request: FastifyRequest,

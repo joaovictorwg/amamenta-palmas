@@ -1,7 +1,7 @@
 import { hashPassword } from "@/shared/utils/hash";
 import { UnauthorizedError } from "@/shared/errors/UnauthorizedError";
 import { AuthenticateUserUseCase } from "./login.usecase";
-import { FakeUserRepository } from "../tests/fakes/fakeUserRepository";
+import { FakeUserRepository } from "../../tests/fakes/fakeUserRepository";
 
 describe("AuthenticateUserUseCase", () => {
     let userRepository: FakeUserRepository;

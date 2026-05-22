@@ -7,6 +7,10 @@ import { authenticateSchema } from "../schemas/authenticate.schema";
 import { registerEmployeeByDomainSchema } from "../schemas/registerEmployeeByDomain.schema";
 import { resendVerificationEmailSchema } from "../schemas/resendVerificationEmail.schema";
 import { verifyEmailSchema } from "../schemas/verifyEmail.schema";
+import { forgotPasswordSchema } from "../schemas/forgotPassword.schema";
+import { forgotPasswordController } from "../controllers/forgotPassword.controller";
+import { resetPasswordSchema } from "../schemas/resetPassword.schema";
+import { resetPasswordController } from "../controllers/resetPassword.controller";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post(
@@ -47,5 +51,25 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     authenticateController
+  );
+
+  app.post(
+    "/auth/forgot-password",
+    {
+      schema: {
+        body: forgotPasswordSchema,
+      },
+    },
+    forgotPasswordController
+  );
+
+  app.post(
+    "/auth/reset-password",
+    {
+      schema: {
+        body: resetPasswordSchema,
+      },
+    },
+    resetPasswordController
   );
 }

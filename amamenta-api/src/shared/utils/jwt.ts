@@ -26,3 +26,20 @@ export function signEmailVerificationToken(payload: EmailVerificationPayload) {
 export function verifyEmailVerificationToken(token: string) {
   return jwt.verify(token, env.jwtSecret) as EmailVerificationPayload;
 }
+
+
+interface ResetPasswordPayload {
+  sub: string;
+  email: string;
+  purpose: "reset_password";
+}
+
+export function signResetPasswordToken(payload: ResetPasswordPayload) {
+  return jwt.sign(payload, env.jwtSecret, {
+    expiresIn: "30m",
+  });
+}
+
+export function verifyResetPasswordToken(token: string) {
+  return jwt.verify(token, env.jwtSecret) as ResetPasswordPayload;
+}

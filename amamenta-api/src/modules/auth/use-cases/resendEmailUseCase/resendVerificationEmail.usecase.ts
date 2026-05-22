@@ -1,7 +1,7 @@
 import { UserRepository } from "@/modules/users/repositories/user.repository";
 import { MailProvider } from "@/shared/mail/mail.provider";
-import { assertCanResendVerification } from "../utils/resendVerificationRateLimiter";
-import { sendVerificationEmail } from "../utils/sendVerificationEmail";
+import { assertCanResendVerification } from "../../utils/resendVerificationRateLimiter";
+import { sendVerificationEmail } from "../../utils/sendVerificationEmail";
 
 interface Request {
     email: string;
