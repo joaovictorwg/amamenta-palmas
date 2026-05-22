@@ -8,16 +8,19 @@ export function setStorage(
     );
 }
 
-export function getStorage<T>(
-    key: string
-): T | null {
+export function getStorage<T>(key: string): T | null {
     const item = localStorage.getItem(key);
 
     if (!item) {
         return null;
     }
 
-    return JSON.parse(item);
+    try {
+        return JSON.parse(item) as T;
+    } catch {
+        localStorage.removeItem(key);
+        return null;
+    }
 }
 
 export function removeStorage(key: string) {

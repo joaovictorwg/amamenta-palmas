@@ -2,7 +2,7 @@ import axios from "axios";
 
 import {
     getToken,
-    logout,
+    clearToken,
 } from "./auth";
 
 export const api = axios.create({
@@ -25,7 +25,7 @@ api.interceptors.response.use(
 
     (error) => {
         if (error.response?.status === 401) {
-            logout();
+            clearToken();
 
             window.location.href = "/login";
         }
