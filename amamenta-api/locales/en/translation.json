@@ -1,0 +1,18 @@
+{
+    "errors": {
+        "user_already_exists": "This email is already registered.",
+        "invalid_invite_token": "Invalid or expired invite token.",
+        "invite_already_used": "This invite has already been used.",
+        "tenant_not_found": "Organization not found.",
+        "unauthorized": "Unauthorized.",
+        "internal_server_error": "Internal server error.",
+        "email_send_failed": "Failed to send email.",
+        "forbidden": "Access denied."
+    },
+    "success": {
+        "invite_accepted": "Invite accepted successfully!",
+        "user_registered": "User registered successfully!",
+        "email_sent": "Email sent successfully!",
+        "password_reset": "Password reset successfully!"
+    }
+}

@@ -1,9 +1,9 @@
 import { DrizzleTenantRepository } from "@/modules/tenants/repositories/drizzleTenant.repository";
 import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
-import { NodemailerProvider } from "@/shared/mail/nodemailer.provider";
+import { EmailService } from "@/shared/mail/email.service";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RegisterEmployeeByDomainInput } from "../schemas/registerEmployeeByDomain.schema";
-import { RegisterEmployeeByDomainUseCase } from "../use-cases/registerEmployeeByDomain.usecase";
+import { RegisterEmployeeByDomainUseCase } from "../use-cases/registerUseCase/registerEmployeeByDomain.usecase";
 
 export async function registerEmployeeByDomainController(
     request: FastifyRequest,
@@ -13,7 +13,7 @@ export async function registerEmployeeByDomainController(
 
     const userRepository = new DrizzleUserRepository();
     const tenantRepository = new DrizzleTenantRepository();
-    const mailProvider = new NodemailerProvider();
+    const mailProvider = new EmailService();
 
     const useCase = new RegisterEmployeeByDomainUseCase(
         userRepository,
