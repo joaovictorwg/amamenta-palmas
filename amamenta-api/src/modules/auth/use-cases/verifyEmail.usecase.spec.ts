@@ -48,8 +48,6 @@ describe("VerifyEmailUseCase", () => {
             role: "employee",
             tenantId: "tenant-1",
             isVerified: true,
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
         });
 
         (verifyEmailVerificationToken as jest.Mock).mockReturnValueOnce({

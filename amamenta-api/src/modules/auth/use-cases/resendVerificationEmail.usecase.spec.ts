@@ -56,8 +56,6 @@ describe("ResendVerificationEmailUseCase", () => {
             role: "employee",
             tenantId: "tenant-1",
             isVerified: false,
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
         });
 
         const result = await useCase.execute({ email: "user@tenant.com" });
@@ -77,8 +75,6 @@ describe("ResendVerificationEmailUseCase", () => {
             role: "employee",
             tenantId: "tenant-1",
             isVerified: false,
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
         });
 
         (sendVerificationEmail as jest.Mock).mockRejectedValueOnce(
@@ -94,5 +90,8 @@ describe("ResendVerificationEmailUseCase", () => {
         await useCase.execute({ email: "  USER@TENANT.COM  " });
 
         expect(assertCanResendVerification).toHaveBeenCalledWith("user@tenant.com");
+    });
+});
+esendVerification).toHaveBeenCalledWith("user@tenant.com");
     });
 });

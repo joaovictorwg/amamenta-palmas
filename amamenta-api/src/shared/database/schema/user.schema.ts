@@ -12,12 +12,14 @@ export const users = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
 
+    name: text("name"),
+
     email: text("email").notNull(),
 
     passwordHash: text("password_hash").notNull(),
 
     role: text("role", {
-      enum: ["super_admin", "admin", "employee", "donator"],
+      enum: ["super_admin", "admin", "employee"],
     }).notNull(),
 
     // null para super_admin e donator

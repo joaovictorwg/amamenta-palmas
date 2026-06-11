@@ -8,6 +8,11 @@ export interface UserRepository {
 
   findById(id: string): Promise<User | null>;
 
+  findMany(filters: {
+    tenantId?: string;
+    role?: "admin" | "employee" | "super_admin";
+  }): Promise<User[]>;
+
   findManyByTenant(tenantId: string): Promise<User[]>;
 
   findManyByTenantAndRole(

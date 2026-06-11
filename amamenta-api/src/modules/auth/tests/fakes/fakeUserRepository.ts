@@ -24,6 +24,21 @@ export class FakeUserRepository implements UserRepository {
         return this.users.find((user) => user.id === id) ?? null;
     }
 
+    async findMany(filters: {
+        tenantId?: string;
+        role?: "admin" | "employee" | "super_admin";
+    }): Promise<User[]> {
+        return this.users.filter((user) => {
+            if (filters.tenantId && user.tenantId !== filters.tenantId) {
+                return false;
+            }
+            if (filters.role && user.role !== filters.role) {
+                return false;
+            }
+            return true;
+        });
+    }
+
     async findManyByTenant(tenantId: string): Promise<User[]> {
         return this.users.filter((user) => user.tenantId === tenantId);
     }

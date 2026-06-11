@@ -38,7 +38,6 @@ export class RegisterEmployeeByDomainUseCase {
             role: "employee",
             tenantId: tenant.id,
             isVerified: false,
-            twoFactorEnabled: false,
         });
 
         try {
