@@ -22,13 +22,51 @@ export class DrizzleUserRepository implements UserRepository {
     return user ?? null;
   }
 
-  async findById(id: string): Promise<User | null> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, id));
+
+  async findById(
+    id: string,
+    tenantId?: string
+  ): Promise<User | null> {
+    const filters = [
+      eq(users.id, id),
+    ];
+
+    if (tenantId) {
+      filters.push(
+        eq(users.tenantId, tenantId)
+      );
+    }
+
+    const [user] =
+      await db
+        .select()
+        .from(users)
+        .where(and(...filters));
 
     return user ?? null;
+  }
+
+  async findMany({
+    tenantId,
+    role,
+  }: {
+    tenantId?: string;
+    role?: "admin" | "employee" | "super_admin";
+  }): Promise<User[]> {
+    const filters = [];
+
+    if (tenantId) {
+      filters.push(eq(users.tenantId, tenantId));
+    }
+
+    if (role) {
+      filters.push(eq(users.role, role));
+    }
+
+    return db
+      .select()
+      .from(users)
+      .where(filters.length ? and(...filters) : undefined);
   }
 
   async findManyByTenant(tenantId: string): Promise<User[]> {

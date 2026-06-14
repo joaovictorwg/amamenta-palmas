@@ -55,7 +55,6 @@ export async function seed() {
       role: "super_admin",
       tenantId: null,
       isVerified: true,
-      twoFactorEnabled: false,
     });
     console.log("✅ Super admin created");
   } catch (err) {

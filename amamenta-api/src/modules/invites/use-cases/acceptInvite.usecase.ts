@@ -54,7 +54,6 @@ export class AcceptInviteUseCase {
             role: invite.role,
             tenantId: invite.tenantId,
             isVerified: true,
-            twoFactorEnabled: false,
         });
 
         await this.inviteRepository.markAsUsed(invite.id);
