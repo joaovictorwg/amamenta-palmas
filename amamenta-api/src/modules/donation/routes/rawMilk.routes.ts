@@ -1,13 +1,56 @@
 import { FastifyInstance } from "fastify";
-import { RawMilkTriageStatus } from "../enums/rawMilkTriageStatus.enum";
-import { TriageRawMilkBatchUseCase } from "../use-cases/rawMilkCollection/triageRawMilkBatch.usecase";
-import { DrizzleRawMilkCollectionRepository } from "../repositories/rawmilkCollection/drizzleRawMilkCollection.repository"
+import {
+    approveRawMilkController,
+    createRawMilkController,
+    getRawMilkByIdController,
+    getRawMilkController,
+    rejectRawMilkController,
+    triageRawMilkBatchController,
+    updateRawMilkController,
+} from "../controllers/rawMilk.controller";
+import {
+    createRawMilkSchema,
+    rawMilkIdParamsSchema,
+    rawMilkQuerySchema,
+    rejectRawMilkSchema,
+    triageRawMilkBatchSchema,
+    updateRawMilkSchema,
+} from "../schemas/rawMilk.schema";
 
 export async function rawMilkRoutes(app: FastifyInstance) {
-    app.post("/raw-milk/triage", async (request, reply) => {
-        const { rawMilkIds, status, rejectReason } = request.body as { rawMilkIds: string[], status: RawMilkTriageStatus, rejectReason?: string };
-        const useCase = new TriageRawMilkBatchUseCase(new DrizzleRawMilkCollectionRepository());
-        const result = await useCase.execute({ rawMilkIds, status, rejectReason });
-        return reply.send({ updated: result.length });
-    });
+    app.post(
+        "/raw-milk",
+        { schema: { body: createRawMilkSchema } },
+        createRawMilkController,
+    );
+    app.get(
+        "/raw-milk",
+        { schema: { querystring: rawMilkQuerySchema } },
+        getRawMilkController,
+    );
+    app.get(
+        "/raw-milk/:id",
+        { schema: { params: rawMilkIdParamsSchema } },
+        getRawMilkByIdController,
+    );
+    app.patch(
+        "/raw-milk/:id",
+        { schema: { params: rawMilkIdParamsSchema, body: updateRawMilkSchema } },
+        updateRawMilkController,
+    );
+    app.post(
+        "/raw-milk/triage",
+        { schema: { body: triageRawMilkBatchSchema } },
+        triageRawMilkBatchController,
+    );
+    app.patch(
+        "/raw-milk/:id/approve",
+        { schema: { params: rawMilkIdParamsSchema } },
+        approveRawMilkController,
+    );
+    app.patch(
+        "/raw-milk/:id/reject",
+        { schema: { params: rawMilkIdParamsSchema, body: rejectRawMilkSchema } },
+        rejectRawMilkController,
+    );
 }
