@@ -28,6 +28,7 @@ export async function usersRoutes(app: FastifyInstance) {
       schema: {
         params: getUserByIdSchema,
       },
+      preHandler: [requireRole(["super_admin", "admin", "employee"]), authenticate],
     },
     getUserByIdController
   );

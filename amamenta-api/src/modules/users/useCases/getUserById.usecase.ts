@@ -1,35 +1,63 @@
 import { AppError } from "@/shared/errors/AppError";
 import { ForbiddenError } from "@/shared/errors/ForbiddenError";
 import { UserRepository } from "../repositories/user.repository";
+import { UserRole } from "../entities/users.entity";
 
 interface Requester {
   id: string;
-  role: string;
+  role: UserRole;
   tenantId: string | null;
 }
 
 export class GetUserByIdUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository
+  ) { }
 
-  async execute(id: string, requester: Requester) {
-    const user = await this.userRepository.findById(id);
+  async execute(
+    id: string,
+    requester: Requester
+  ) {
+    let user = null;
+
+    if (requester.role === "super_admin") {
+      user =
+        await this.userRepository.findById(id);
+    }
+
+    else if (requester.role === "admin") {
+      user =
+        await this.userRepository.findById(
+          id,
+          requester.tenantId!
+        );
+    }
+
+    else {
+      if (requester.id !== id) {
+        throw new ForbiddenError(
+          "You don't have permission to see this user"
+        );
+      }
+
+      user =
+        await this.userRepository.findById(
+          id,
+          requester.tenantId!
+        );
+    }
 
     if (!user) {
-      throw new AppError("User not found", 404);
+      throw new AppError(
+        "User not found",
+        404
+      );
     }
 
-    // Auth logic
-    if (requester.role !== "super_admin") {
-      if (requester.role === "admin") {
-        if (user.tenantId !== requester.tenantId) {
-          throw new ForbiddenError("You don't have permission to see this user");
-        }
-      } else if (requester.id !== id) {
-        throw new ForbiddenError("You don't have permission to see this user");
-      }
-    }
+    const { passwordHash, ...safeUser } = user;
 
-    const { passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+
+
+    return user;
   }
 }

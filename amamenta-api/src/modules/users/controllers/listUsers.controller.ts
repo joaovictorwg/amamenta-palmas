@@ -4,13 +4,14 @@ import { ListUsersUseCase } from "../useCases/listUsers.usecase";
 import { ListUsersInput } from "../schemas/listUsers.schema";
 
 export async function listUsersController(
-  request: FastifyRequest<{ Querystring: ListUsersInput }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
+
   const repository = new DrizzleUserRepository();
   const useCase = new ListUsersUseCase(repository);
 
-  const users = await useCase.execute(request.query, request.user);
+  const users = await useCase.execute(request.body as ListUsersInput, request.user);
 
   return reply.send(users);
 }

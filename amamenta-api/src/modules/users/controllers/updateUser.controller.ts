@@ -1,14 +1,14 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DrizzleUserRepository } from "../repositories/drizzleUser.repository";
 import { UpdateUserUseCase } from "../useCases/updateUser.usecase";
-import { UpdateUserInput } from "../schemas/updateUser.schema";
+import { BByIdUserInput, UpdateUserInput } from "../schemas/updateUser.schema";
 
 export async function updateUserController(
-  request: FastifyRequest<{ Params: { id: string }; Body: UpdateUserInput }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const { id } = request.params;
-  const data = request.body;
+  const { id } = request.params as BByIdUserInput;
+  const data = request.body as UpdateUserInput;
 
   const repository = new DrizzleUserRepository();
   const useCase = new UpdateUserUseCase(repository);

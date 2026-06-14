@@ -1,12 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { DrizzleUserRepository } from "../repositories/drizzleUser.repository";
 import { GetUserByIdUseCase } from "../useCases/getUserById.usecase";
+import { GetUserByIdInput } from "../schemas/getUserById.schema";
 
 export async function getUserByIdController(
-  request: FastifyRequest<{ Params: { id: string } }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const { id } = request.params;
+  const { id } = request.params as GetUserByIdInput;
 
   const repository = new DrizzleUserRepository();
   const useCase = new GetUserByIdUseCase(repository);

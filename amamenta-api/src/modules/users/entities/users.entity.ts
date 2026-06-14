@@ -9,7 +9,7 @@ export interface User {
 
   role: UserRole;
 
-  tenantId: string | null; 
+  tenantId: string | null;
   // 🔥 null para:
   // - super_admin
   // - donator
