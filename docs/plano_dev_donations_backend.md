@@ -519,6 +519,20 @@ GET /raw-milk/:id
 PATCH /raw-milk/:id
 PATCH /raw-milk/:id/approve
 PATCH /raw-milk/:id/reject
+POST /raw-milk/triage
+```
+
+## Body da triagem em lote
+
+``` 
+{
+  "rawMilkIds": [
+    "uuid1",
+    "uuid2"
+  ],
+  "status": "APPROVED",
+  "rejectReason": "string opcional"
+}
 ```
 
 ---
@@ -560,6 +574,14 @@ GET /pasteurized-milk
 GET /pasteurized-milk/:id
 PATCH /pasteurized-milk/:id/distribute
 PATCH /pasteurized-milk/:id/discard
+```
+
+## Body da distribuição
+
+```json
+{
+  "recipientIdentifier": "string opcional"
+}
 ```
 
 ---
