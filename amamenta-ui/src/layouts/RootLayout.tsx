@@ -28,7 +28,7 @@ export default function RootLayout() {
         ? t(currentRoute.handle.titleKey)
         : ""
 
-    const tabIndex = location.pathname === "/about" ? 1 : 0
+    const tabIndex = location.pathname === "/donations" ? 1 : 0
 
     const handleTabChange = (index: number) => {
         if (index === 0) {
@@ -36,7 +36,7 @@ export default function RootLayout() {
         }
 
         if (index === 1) {
-            navigate("/about")
+            navigate("/donations")
         }
     }
 
@@ -48,13 +48,13 @@ export default function RootLayout() {
             />
 
             <BrTab
-                items={[t("amamenta.home"), t("amamenta.about"),]}
+                items={[t("amamenta.generalView"), t("amamenta.donations"),]}
                 activeIndex={tabIndex}
                 onChange={handleTabChange}
                 children={undefined}
             />
 
-            <main style={{ padding: 20 }}>
+            <main>
                 <Outlet />
             </main>
         </div>

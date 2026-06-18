@@ -15,9 +15,9 @@
     "amamenta.logout": "Sign out",
     "amamenta.profile": "Profile",
     "amamenta.appConfiguration": "App configuration",
-    "amamenta.home": "Home",
+    "amamenta.generalView": "General view",
     "amamenta.home.subtitle": "Home page",
     "amamenta.home.welcome": "Welcome to the project",
-    "amamenta.about": "About",
+    "amamenta.donations": "Donations",
     "amamenta.about.subtitle": "About the project"
 }

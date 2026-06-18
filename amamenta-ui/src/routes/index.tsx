@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "../layouts/RootLayout";
-import HomePage from "../pages/HomePage/HomePage";
-import AboutPage from "../pages/AboutPage/AboutPage";
+import GeneralViewPage from "@/pages/Default/GeneralView/GeneralViewPage";
+import DonationsPage from "../pages/Default/Donations/DonationsPage";
 import ProtectedRoute from "./ProtectedRoute";
 
 import {
@@ -9,8 +9,8 @@ import {
   ALLOWED_SUPERADMIN_ROLES,
 } from "../constants/roles";
 
-import LoginPage from "../pages/Login/Login";
-import AppConfiguration from "@/pages/AppConfiguration/AppConfiguration";
+import LoginPage from "../pages/Common/Login/Login";
+import AppConfiguration from "@/pages/SuperAdmin/AppConfiguration/AppConfiguration";
 import SuperAdminLayout from "@/layouts/SuperAdminLayout";
 
 export const router = createBrowserRouter([
@@ -25,17 +25,17 @@ export const router = createBrowserRouter([
           <ProtectedRoute
             allowedRoles={ALLOWED_DASHBOARD_ROLES}
           >
-            <HomePage />
+            <GeneralViewPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: "about",
+        path: "donations",
         element: (
           <ProtectedRoute
             allowedRoles={ALLOWED_DASHBOARD_ROLES}
           >
-            <AboutPage />
+            <DonationsPage />
           </ProtectedRoute>
         ),
       },

@@ -15,9 +15,9 @@
     "amamenta.logout": "Sair",
     "amamenta.profile": "Perfil",
     "amamenta.appConfiguration": "Configuração da Aplicação",
-    "amamenta.home": "Início",
+    "amamenta.generalView": "Visão geral",
     "amamenta.home.subtitle": "Página incial",
     "amamenta.home.welcome": "Bem-vindo ao projeto",
-    "amamenta.about": "Sobre",
+    "amamenta.donations": "Doações",
     "amamenta.about.subtitle": "Sobre o projeto"
 }
