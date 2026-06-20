@@ -3,12 +3,12 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import AppShell from "@/layouts/AppShell/AppShell";
 import SuperAdminLayout from "@/layouts/SuperAdminLayout";
 import AcceptInvite from "@/pages/AcceptInvite/AcceptInvite";
-import AppConfiguration from "@/pages/AppConfiguration/AppConfiguration";
+import AppConfiguration from "@/pages/SuperAdmin/AppConfiguration/AppConfiguration";
 import DonatorFormPage from "@/pages/Donators/DonatorFormPage";
 import DonatorProfilePage from "@/pages/Donators/DonatorProfilePage";
 import DonatorsListPage from "@/pages/Donators/DonatorsListPage";
 import PendingExamsPage from "@/pages/Donators/PendingExamsPage";
-import LoginPage from "@/pages/Login/Login";
+import LoginPage from "@/pages/Common/Login/Login";
 import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
 
