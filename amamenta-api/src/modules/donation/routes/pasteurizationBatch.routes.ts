@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { authenticate } from "@/shared/middlewares/authenticate";
 import {
     approvePasteurizationBatchController,
     createPasteurizationBatchController,
@@ -15,6 +16,8 @@ import {
 } from "../schemas/pasteurizationBatch.schema";
 
 export async function pasteurizationBatchRoutes(app: FastifyInstance) {
+    app.addHook("preHandler", authenticate);
+
     app.post(
         "/pasteurization-batches",
         { schema: { body: createPasteurizationBatchSchema } },

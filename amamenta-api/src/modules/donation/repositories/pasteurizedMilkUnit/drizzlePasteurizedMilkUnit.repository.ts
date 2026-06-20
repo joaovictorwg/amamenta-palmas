@@ -10,6 +10,7 @@ import { PasteurizedMilkUnitRepository } from "./pasteurizedMilkUnit.repository"
 function mapToPasteurizedMilkUnit(row: any): PasteurizedMilkUnit {
     return {
         id: row.id,
+        tenantId: row.tenantId,
         batchId: row.batchId,
         volumeMl: row.volumeMl,
         expirationDate: row.expirationDate,
@@ -23,21 +24,24 @@ function mapToPasteurizedMilkUnit(row: any): PasteurizedMilkUnit {
 }
 
 export class DrizzlePasteurizedMilkUnitRepository implements PasteurizedMilkUnitRepository {
-    async create(data: Omit<PasteurizedMilkUnit, "id" | "createdAt" | "updatedAt">, tx?: any): Promise<PasteurizedMilkUnit> {
+    async create(data: Omit<PasteurizedMilkUnit, "id" | "tenantId" | "createdAt" | "updatedAt">, tenantId: string, tx?: any): Promise<PasteurizedMilkUnit> {
         const executor = tx ?? db;
-        const [unit] = await executor.insert(pasteurizedMilkUnits).values(data).returning();
+        const [unit] = await executor.insert(pasteurizedMilkUnits).values({ ...data, tenantId }).returning();
         return mapToPasteurizedMilkUnit(unit);
     }
 
-    async findById(id: string, tx?: any): Promise<PasteurizedMilkUnit | null> {
+    async findById(id: string, tenantId: string, tx?: any): Promise<PasteurizedMilkUnit | null> {
         const executor = tx ?? db;
-        const [unit] = await executor.select().from(pasteurizedMilkUnits).where(eq(pasteurizedMilkUnits.id, id));
+        const [unit] = await executor.select().from(pasteurizedMilkUnits).where(and(
+            eq(pasteurizedMilkUnits.id, id),
+            eq(pasteurizedMilkUnits.tenantId, tenantId),
+        ));
         return unit ? mapToPasteurizedMilkUnit(unit) : null;
     }
 
-    async findMany(params: { stockStatus?: PasteurizedMilkStockStatus; batchId?: string } = {}, tx?: any): Promise<PasteurizedMilkUnit[]> {
+    async findMany(params: { stockStatus?: PasteurizedMilkStockStatus; batchId?: string } = {}, tenantId: string, tx?: any): Promise<PasteurizedMilkUnit[]> {
         const executor = tx ?? db;
-        const conditions = [];
+        const conditions = [eq(pasteurizedMilkUnits.tenantId, tenantId)];
         if (params.stockStatus) {
             conditions.push(eq(pasteurizedMilkUnits.stockStatus, params.stockStatus));
         }
@@ -52,7 +56,7 @@ export class DrizzlePasteurizedMilkUnitRepository implements PasteurizedMilkUnit
         return result.map(mapToPasteurizedMilkUnit);
     }
 
-    async updateStatus(id: string, stockStatus: PasteurizedMilkStockStatus, tx?: any, recipientIdentifier?: string | null): Promise<PasteurizedMilkUnit> {
+    async updateStatus(id: string, tenantId: string, stockStatus: PasteurizedMilkStockStatus, tx?: any, recipientIdentifier?: string | null): Promise<PasteurizedMilkUnit> {
         const executor = tx ?? db;
         const updateData: any = { stockStatus, updatedAt: new Date() };
         if (stockStatus === PasteurizedMilkStockStatus.DISTRIBUTED) {
@@ -63,16 +67,17 @@ export class DrizzlePasteurizedMilkUnitRepository implements PasteurizedMilkUnit
         }
         const [unit] = await executor.update(pasteurizedMilkUnits)
             .set(updateData)
-            .where(eq(pasteurizedMilkUnits.id, id))
+            .where(and(eq(pasteurizedMilkUnits.id, id), eq(pasteurizedMilkUnits.tenantId, tenantId)))
             .returning();
+        if (!unit) throw new Error("PasteurizedMilkUnit not found");
         return mapToPasteurizedMilkUnit(unit);
     }
 
-    async update(id: string, data: Partial<Omit<PasteurizedMilkUnit, "id" | "createdAt" | "updatedAt">>, tx?: any): Promise<PasteurizedMilkUnit> {
+    async update(id: string, tenantId: string, data: Partial<Omit<PasteurizedMilkUnit, "id" | "createdAt" | "updatedAt">>, tx?: any): Promise<PasteurizedMilkUnit> {
         const executor = tx ?? db;
         const [unit] = await executor.update(pasteurizedMilkUnits)
             .set({ ...data, updatedAt: new Date() })
-            .where(eq(pasteurizedMilkUnits.id, id))
+            .where(and(eq(pasteurizedMilkUnits.id, id), eq(pasteurizedMilkUnits.tenantId, tenantId)))
             .returning();
         if (!unit) throw new Error("PasteurizedMilkUnit not found");
         return mapToPasteurizedMilkUnit(unit);
