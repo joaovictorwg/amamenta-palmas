@@ -2,6 +2,7 @@ import { MicrobiologyStatus } from "../enums/MicrobiologyStatus.enum";
 
 export interface PasteurizationBatch {
     id: string;
+    tenantId: string;
     batchCode: string;
     pasteurizedAt: Date;
     operatorId: string;

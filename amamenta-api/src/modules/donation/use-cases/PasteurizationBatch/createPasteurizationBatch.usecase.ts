@@ -1,5 +1,4 @@
 import { RawMilkCollectionRepository } from "../../repositories/rawmilkCollection/rawMilkCollection.repository";
-import { BatchRawMilk } from "../../entities/batchRawMilk.entity";
 import { MicrobiologyStatus } from "../../enums/MicrobiologyStatus.enum";
 import { RawMilkTriageStatus } from "../../enums/rawMilkTriageStatus.enum";
 import { RawMilkStorageStatus } from "../../enums/rawMilkStorageStatus.enum";
@@ -7,6 +6,7 @@ import { PasteurizationBatchRepository } from "../../repositories/pasteurizedBac
 import { BatchRawMilkRepository } from "../../repositories/batchRawMilk/batchRawMilk.repository";
 
 interface CreatePasteurizationBatchInput {
+    tenantId: string;
     batchCode: string;
     pasteurizedAt: Date;
     operatorId: string;
@@ -24,7 +24,7 @@ export class CreatePasteurizationUseBatchCase {
     async execute(input: CreatePasteurizationBatchInput) {
         // Buscar todos os frascos
         const frascos = await Promise.all(
-            input.rawMilkIds.map(id => this.rawMilkRepository.findById(id))
+            input.rawMilkIds.map(id => this.rawMilkRepository.findById(id, input.tenantId))
         );
 
         // Validações
@@ -42,20 +42,21 @@ export class CreatePasteurizationUseBatchCase {
             operatorId: input.operatorId,
             microbiologyStatus: MicrobiologyStatus.PENDING,
             observations: input.observations,
-        });
+        }, input.tenantId);
 
         // Vincular frascos ao lote (persistir na batch_raw_milk)
         await this.batchRawMilkRepository.createMany(
             input.rawMilkIds.map(rawMilkCollectionId => ({
                 batchId: batch.id,
                 rawMilkCollectionId,
-            }))
+            })),
+            input.tenantId,
         );
 
         // Atualizar status dos frascos para USED_IN_BATCH
         await Promise.all(
             input.rawMilkIds.map(id =>
-                this.rawMilkRepository.updateStatus(id, undefined, RawMilkStorageStatus.USED_IN_BATCH)
+                this.rawMilkRepository.updateStatus(id, input.tenantId, undefined, RawMilkStorageStatus.USED_IN_BATCH)
             )
         );
 

@@ -5,6 +5,7 @@ import { PasteurizationBatchRepository } from "../../repositories/pasteurizedBac
 import { PasteurizedMilkUnitRepository } from "../../repositories/pasteurizedMilkUnit/pasteurizedMilkUnit.repository";
 
 interface ApproveBatchMicrobiologyInput {
+    tenantId: string;
     batchId: string;
     volumeFinalMl: number;
     units: Array<{
@@ -21,7 +22,7 @@ export class ApproveBatchMicrobiologyUseCase {
     async execute(input: ApproveBatchMicrobiologyInput) {
         return await db.transaction(async (tx) => {
             // Aprova microbiologia do lote
-            const batch = await this.batchRepository.update(input.batchId, {
+            const batch = await this.batchRepository.update(input.batchId, input.tenantId, {
                 microbiologyStatus: MicrobiologyStatus.APPROVED,
             }, tx);
 
@@ -36,7 +37,7 @@ export class ApproveBatchMicrobiologyUseCase {
                     volumeMl: unit.volumeMl,
                     expirationDate,
                     stockStatus: PasteurizedMilkStockStatus.AVAILABLE,
-                }, tx);
+                }, input.tenantId, tx);
                 createdUnits.push(milkUnit);
             }
 

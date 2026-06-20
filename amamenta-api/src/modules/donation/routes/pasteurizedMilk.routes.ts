@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { authenticate } from "@/shared/middlewares/authenticate";
 import {
     createPasteurizedMilkController,
     discardPasteurizedMilkController,
@@ -15,6 +16,8 @@ import {
 } from "../schemas/pasteurizedMilk.schema";
 
 export async function pasteurizedMilkRoutes(app: FastifyInstance) {
+    app.addHook("preHandler", authenticate);
+
     app.post(
         "/pasteurized-milk",
         { schema: { body: createPasteurizedMilkSchema } },
