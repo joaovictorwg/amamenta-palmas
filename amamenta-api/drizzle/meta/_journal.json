@@ -57,6 +57,20 @@
       "when": 1778871090322,
       "tag": "0007_wise_felicia_hardy",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781883671417,
+      "tag": "0008_chief_roulette",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1781967512406,
+      "tag": "0009_flippant_zzzax",
+      "breakpoints": true
     }
   ]
 }

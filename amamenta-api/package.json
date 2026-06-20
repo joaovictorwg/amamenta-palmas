@@ -23,6 +23,7 @@
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
+    "docxtemplater": "^3.67.5",
     "drizzle-orm": "^0.45.1",
     "fastify": "^5.8.2",
     "fastify-type-provider-zod": "^6.1.0",
@@ -33,6 +34,7 @@
     "mailtrap": "^4.5.1",
     "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
+    "pizzip": "^3.2.0",
     "resend": "^6.12.2",
     "zod": "^4.3.6"
   },

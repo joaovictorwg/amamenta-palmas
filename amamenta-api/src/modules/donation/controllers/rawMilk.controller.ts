@@ -6,6 +6,23 @@ import { ApproveRawMilkUseCase } from "../use-cases/rawMilkCollection/approveRaw
 import { RejectRawMilkUseCase } from "../use-cases/rawMilkCollection/insertRawMilk.usecase";
 import { RawMilkTriageStatus } from "../enums/rawMilkTriageStatus.enum";
 import { RawMilkStorageStatus } from "../enums/rawMilkStorageStatus.enum";
+import {
+    DrizzleDonatorExamsRepository,
+    DrizzleDonatorRepository,
+} from "@/modules/donator/repositories/drizzleDonator.repository";
+import { BadRequestError } from "@/shared/errors/BadRequestError";
+
+function getRequestTenantId(request: FastifyRequest): string {
+    const requestUser = request as FastifyRequest & {
+        user?: { tenantId: string | null };
+    };
+
+    if (!requestUser.user?.tenantId) {
+        throw new BadRequestError("Hospital nao informado");
+    }
+
+    return requestUser.user.tenantId;
+}
 
 export async function createRawMilkController(
     request: FastifyRequest,
@@ -22,10 +39,17 @@ export async function createRawMilkController(
     };
 
     const repository = new DrizzleRawMilkCollectionRepository();
-    const useCase = new CreateRawMilkCollectionUseCase(repository);
+    const donatorRepository = new DrizzleDonatorRepository();
+    const donatorExamsRepository = new DrizzleDonatorExamsRepository();
+    const useCase = new CreateRawMilkCollectionUseCase(
+        repository,
+        donatorRepository,
+        donatorExamsRepository,
+    );
 
     const rawMilk = await useCase.execute({
         ...body,
+        tenantId: getRequestTenantId(request),
         collectionDate: new Date(body.collectionDate),
         receivedAt: new Date(body.receivedAt),
     });

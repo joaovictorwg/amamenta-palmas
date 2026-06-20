@@ -1,9 +1,9 @@
-import { DonatorRepository } from "../repositories/donator.repository";
+import { DonatorRepository } from "../../repositories/donator.repository";
 
 export class DeleteDonatorUseCase {
   constructor(private repository: DonatorRepository) {}
 
-  async execute(id: string) {
-    return this.repository.delete(id);
+  async execute(id: string, tenantId: string) {
+    return this.repository.delete(id, tenantId);
   }
 }
