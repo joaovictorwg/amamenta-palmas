@@ -6,6 +6,7 @@ import {
   boolean,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { tenants } from "./tenant.schema";
 
 export const users = pgTable(
   "users",
@@ -22,8 +23,11 @@ export const users = pgTable(
       enum: ["super_admin", "admin", "employee"],
     }).notNull(),
 
-    // null para super_admin e donator
-    tenantId: uuid("tenant_id"),
+    // null para super_admin
+    tenantId: uuid("tenant_id").references(() => tenants.id, {
+      onDelete: "restrict",
+      onUpdate: "cascade",
+    }),
 
     isVerified: boolean("is_verified").notNull().default(false),
 

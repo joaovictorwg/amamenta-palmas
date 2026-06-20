@@ -8,7 +8,7 @@ interface Params {
 
 export function buildInviteEmailMessage({ role, tenantName, token }: Params) {
     const roleLabel = role === "admin" ? "administrador" : "colaborador";
-    const acceptUrl = `${env.appBaseUrl}?inviteToken=${encodeURIComponent(token)}`;
+    const acceptUrl = `${env.appBaseUrl}/accept-invite?inviteToken=${encodeURIComponent(token)}`;
     const subject = `Convite para ${tenantName}`;
     const text = [
         `Voce recebeu um convite para entrar em ${tenantName} como ${roleLabel}.`,

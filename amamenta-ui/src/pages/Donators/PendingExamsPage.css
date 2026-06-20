@@ -1,0 +1,66 @@
+.pending-exams {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1280px;
+}
+
+.pending-exams__header {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.pending-exams__title {
+  color: var(--gray-90, #1b1b1b);
+  font-size: 28px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.pending-exams__description {
+  color: var(--gray-70, #3d3d3d);
+  margin: 8px 0 0;
+}
+
+.pending-exams__filters {
+  align-items: flex-end;
+  background: var(--pure-0, #fff);
+  border: 1px solid var(--gray-10, #e6e6e6);
+  border-radius: 4px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) minmax(180px, 1fr) auto;
+  padding: 16px;
+}
+
+.pending-exams__table {
+  background: var(--pure-0, #fff);
+  border: 1px solid var(--gray-10, #e6e6e6);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pending-exams__actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.pending-exams__error {
+  background: var(--red-vivid-5, #fff3f2);
+  border-left: 4px solid var(--danger, #e52207);
+  color: var(--gray-90, #1b1b1b);
+  padding: 12px 16px;
+}
+
+@media (max-width: 992px) {
+  .pending-exams__header {
+    flex-direction: column;
+  }
+
+  .pending-exams__filters {
+    grid-template-columns: 1fr;
+  }
+}

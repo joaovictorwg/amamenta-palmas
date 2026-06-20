@@ -1,7 +1,10 @@
-import { Donator } from "../entities/donator.entity";
 import { PaginationMeta, PaginationParams } from "./pagination.dto";
+import { DonatorStatus } from "../enums/donatorStatus.enum";
 
 export interface GetDonatorsRequestDTO extends PaginationParams {
+  tenantId: string;
   name?: string;
-  status?: "active" | "inactive";
+  city?: string;
+  status?: DonatorStatus;
+  pendingExams?: boolean;
 }
