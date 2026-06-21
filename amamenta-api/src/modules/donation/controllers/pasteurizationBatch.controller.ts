@@ -7,6 +7,7 @@ import { DrizzleRawMilkCollectionRepository } from "../repositories/rawmilkColle
 import { DrizzleBatchRawMilkRepository } from "../repositories/batchRawMilk/drizzleBatchRawMilk.repository";
 import { DrizzlePasteurizedMilkUnitRepository } from "../repositories/pasteurizedMilkUnit/drizzlePasteurizedMilkUnit.repository";
 import { MicrobiologyStatus } from "../enums/MicrobiologyStatus.enum";
+import { getRequestTenantId } from "./getRequestTenantId";
 
 export async function createPasteurizationBatchController(
     request: FastifyRequest,
@@ -20,6 +21,7 @@ export async function createPasteurizationBatchController(
         observations?: string | null;
     };
 
+    const tenantId = getRequestTenantId(request);
     const useCase = new CreatePasteurizationUseBatchCase(
         new DrizzlePasteurizationBatchRepository(),
         new DrizzleRawMilkCollectionRepository(),
@@ -28,6 +30,7 @@ export async function createPasteurizationBatchController(
 
     const data = await useCase.execute({
         ...body,
+        tenantId,
         pasteurizedAt: new Date(body.pasteurizedAt),
     });
 
@@ -43,11 +46,12 @@ export async function getPasteurizationBatchesController(
         operatorId?: string;
     };
 
+    const tenantId = getRequestTenantId(request);
     const repository = new DrizzlePasteurizationBatchRepository();
     const data = await repository.findMany({
         microbiologyStatus: query.microbiologyStatus,
         operatorId: query.operatorId,
-    });
+    }, tenantId);
 
     return reply.send({ data });
 }
@@ -57,8 +61,9 @@ export async function getPasteurizationBatchByIdController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
+    const tenantId = getRequestTenantId(request);
     const repository = new DrizzlePasteurizationBatchRepository();
-    const data = await repository.findById(id);
+    const data = await repository.findById(id, tenantId);
 
     return reply.send({ data });
 }
@@ -68,6 +73,7 @@ export async function approvePasteurizationBatchController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
+    const tenantId = getRequestTenantId(request);
     const body = request.body as {
         volumeFinalMl?: number;
         units: Array<{ volumeMl: number }>;
@@ -79,6 +85,7 @@ export async function approvePasteurizationBatchController(
     );
 
     const data = await useCase.execute({
+        tenantId,
         batchId: id,
         volumeFinalMl: body.volumeFinalMl ?? 0,
         units: body.units,
@@ -92,6 +99,7 @@ export async function rejectPasteurizationBatchController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
+    const tenantId = getRequestTenantId(request);
     const body = request.body as {
         units: Array<{ volumeMl: number }>;
     };
@@ -103,6 +111,7 @@ export async function rejectPasteurizationBatchController(
     );
 
     const data = await useCase.execute({
+        tenantId,
         batchId: id,
         units: body.units,
     });

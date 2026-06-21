@@ -66,12 +66,14 @@ export class CreateRawMilkCollectionUseCase {
             );
         }
 
+        const { tenantId, ...rawMilkData } = input;
+
         const rawMilk = await this.repository.create({
-            ...input,
+            ...rawMilkData,
             expirationDate,
             triageStatus: RawMilkTriageStatus.PENDING,
             storageStatus: RawMilkStorageStatus.STORED,
-        });
+        }, tenantId);
 
         if (this.donatorRepository) {
             await this.donatorRepository.updateLastCollectionDate(
