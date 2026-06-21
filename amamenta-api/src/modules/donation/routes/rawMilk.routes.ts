@@ -25,6 +25,7 @@ export async function rawMilkRoutes(app: FastifyInstance) {
         "/raw-milk",
         { schema: { body: createRawMilkSchema } },
         createRawMilkController,
+
     );
     app.get(
         "/raw-milk",

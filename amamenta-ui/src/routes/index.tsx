@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-
 import AppShell from "@/layouts/AppShell/AppShell";
 import SuperAdminLayout from "@/layouts/SuperAdminLayout";
 import AcceptInvite from "@/pages/AcceptInvite/AcceptInvite";
@@ -11,12 +10,15 @@ import PendingExamsPage from "@/pages/Donators/PendingExamsPage";
 import LoginPage from "@/pages/Common/Login/Login";
 import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
+import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollectionsPage";
 
 import {
   ALLOWED_DASHBOARD_ROLES,
   ALLOWED_SUPERADMIN_ROLES,
 } from "../constants/roles";
 import ProtectedRoute from "./ProtectedRoute";
+
+
 
 export const router = createBrowserRouter([
   {
@@ -77,13 +79,8 @@ export const router = createBrowserRouter([
       },
       {
         path: "doacoes/coletas",
-        element: (
-          <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Coletas"
-            description="Registro e acompanhamento das coletas de leite cru."
-          />
-        ),
+       element: <RawMilkCollectionsPage />,
+        
       },
       {
         path: "doacoes/lotes",
