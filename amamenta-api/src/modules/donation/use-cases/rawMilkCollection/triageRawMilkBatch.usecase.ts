@@ -2,7 +2,6 @@ import { RawMilkCollectionRepository } from "../../repositories/rawmilkCollectio
 import { RawMilkTriageStatus } from "../../enums/rawMilkTriageStatus.enum";
 
 interface TriageRawMilkBatchInput {
-    tenantId: string;
     rawMilkIds: string[];
     status: RawMilkTriageStatus;
     rejectReason?: string;
@@ -16,7 +15,6 @@ export class TriageRawMilkBatchUseCase {
             input.rawMilkIds.map(id =>
                 this.rawMilkRepository.updateStatus(
                     id,
-                    input.tenantId,
                     input.status,
                     undefined,
                     input.status === RawMilkTriageStatus.REJECTED ? input.rejectReason : undefined

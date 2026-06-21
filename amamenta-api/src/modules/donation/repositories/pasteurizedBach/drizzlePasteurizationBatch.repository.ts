@@ -7,24 +7,21 @@ import { MicrobiologyStatus } from "../../enums/MicrobiologyStatus.enum";
 import { PasteurizationBatchRepository } from "./pasteurizedBatch.repository";
 
 export class DrizzlePasteurizationBatchRepository implements PasteurizationBatchRepository {
-    async create(data: Omit<PasteurizationBatch, "id" | "tenantId" | "createdAt" | "updatedAt">, tenantId: string, tx?: any): Promise<PasteurizationBatch> {
+    async create(data: Omit<PasteurizationBatch, "id" | "createdAt" | "updatedAt">, tx?: any): Promise<PasteurizationBatch> {
         const executor = tx ?? db;
-        const [created] = await executor.insert(pasteurizationBatches).values({ ...data, tenantId }).returning();
+        const [created] = await executor.insert(pasteurizationBatches).values(data).returning();
         return created as PasteurizationBatch;
     }
 
-    async findById(id: string, tenantId: string, tx?: any): Promise<PasteurizationBatch | null> {
+    async findById(id: string, tx?: any): Promise<PasteurizationBatch | null> {
         const executor = tx ?? db;
-        const [batch] = await executor.select().from(pasteurizationBatches).where(and(
-            eq(pasteurizationBatches.id, id),
-            eq(pasteurizationBatches.tenantId, tenantId),
-        ));
+        const [batch] = await executor.select().from(pasteurizationBatches).where(eq(pasteurizationBatches.id, id));
         return batch as PasteurizationBatch || null;
     }
 
-    async findMany(params: { microbiologyStatus?: MicrobiologyStatus; operatorId?: string } = {}, tenantId: string, tx?: any): Promise<PasteurizationBatch[]> {
+    async findMany(params: { microbiologyStatus?: MicrobiologyStatus; operatorId?: string } = {}, tx?: any): Promise<PasteurizationBatch[]> {
         const executor = tx ?? db;
-        const conditions = [eq(pasteurizationBatches.tenantId, tenantId)];
+        const conditions = [];
         if (params.microbiologyStatus) {
             conditions.push(eq(pasteurizationBatches.microbiologyStatus, params.microbiologyStatus));
         }
@@ -35,20 +32,19 @@ export class DrizzlePasteurizationBatchRepository implements PasteurizationBatch
         return await query as PasteurizationBatch[];
     }
 
-    async update(id: string, tenantId: string, data: Partial<PasteurizationBatch>, tx?: any): Promise<PasteurizationBatch> {
+    async update(id: string, data: Partial<PasteurizationBatch>, tx?: any): Promise<PasteurizationBatch> {
         const executor = tx ?? db;
         const [updated] = await executor.update(pasteurizationBatches)
             .set(data)
-            .where(and(eq(pasteurizationBatches.id, id), eq(pasteurizationBatches.tenantId, tenantId)))
+            .where(eq(pasteurizationBatches.id, id))
             .returning();
-        if (!updated) throw new Error("PasteurizationBatch not found");
         return updated as PasteurizationBatch;
     }
 
-    async updateStatus(id: string, tenantId: string, microbiologyStatus: MicrobiologyStatus): Promise<PasteurizationBatch> {
+    async updateStatus(id: string, microbiologyStatus: MicrobiologyStatus): Promise<PasteurizationBatch> {
         const [updated] = await db.update(pasteurizationBatches)
             .set({ microbiologyStatus, updatedAt: new Date() })
-            .where(and(eq(pasteurizationBatches.id, id), eq(pasteurizationBatches.tenantId, tenantId)))
+            .where(eq(pasteurizationBatches.id, id))
             .returning();
         if (!updated) throw new Error("PasteurizationBatch not found");
         return updated as PasteurizationBatch;

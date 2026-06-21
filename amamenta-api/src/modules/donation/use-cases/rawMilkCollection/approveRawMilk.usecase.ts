@@ -4,8 +4,8 @@ import { RawMilkTriageStatus } from "../../enums/rawMilkTriageStatus.enum";
 export class ApproveRawMilkUseCase {
     constructor(private repository: RawMilkCollectionRepository) { }
 
-    async execute(id: string, tenantId: string) {
+    async execute(id: string) {
         // Aprova triagem (PENDING -> APPROVED)
-        return this.repository.updateStatus(id, tenantId, RawMilkTriageStatus.APPROVED);
+        return this.repository.updateStatus(id, RawMilkTriageStatus.APPROVED);
     }
 }

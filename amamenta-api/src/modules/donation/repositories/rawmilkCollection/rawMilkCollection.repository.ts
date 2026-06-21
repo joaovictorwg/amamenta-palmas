@@ -19,9 +19,9 @@ export interface RawMilkFindManyResult {
 }
 
 export interface RawMilkCollectionRepository {
-create(data: Omit<RawMilkCollection, "id" | "tenantId" | "createdAt" | "updatedAt">, tenantId: string): Promise<RawMilkCollection>;
-    findById(id: string, tenantId: string): Promise<RawMilkCollection | null>;
-    findMany(params: RawMilkFindManyParams, tenantId: string): Promise<RawMilkFindManyResult>;
-    update(id: string, tenantId: string, data: Partial<RawMilkCollection>): Promise<RawMilkCollection>;
-    updateStatus(id: string, tenantId: string, triageStatus?: RawMilkTriageStatus, storageStatus?: RawMilkStorageStatus, rejectReason?: string): Promise<RawMilkCollection>;
+    create(data: Omit<RawMilkCollection, "id" | "createdAt" | "updatedAt">): Promise<RawMilkCollection>;
+    findById(id: string): Promise<RawMilkCollection | null>;
+    findMany(params?: RawMilkFindManyParams): Promise<RawMilkFindManyResult>;
+    update(id: string, data: Partial<RawMilkCollection>): Promise<RawMilkCollection>;
+    updateStatus(id: string, triageStatus?: RawMilkTriageStatus, storageStatus?: RawMilkStorageStatus, rejectReason?: string): Promise<RawMilkCollection>;
 }

@@ -10,7 +10,19 @@ import {
     DrizzleDonatorExamsRepository,
     DrizzleDonatorRepository,
 } from "@/modules/donator/repositories/drizzleDonator.repository";
-import { getRequestTenantId } from "./getRequestTenantId";
+import { BadRequestError } from "@/shared/errors/BadRequestError";
+
+function getRequestTenantId(request: FastifyRequest): string {
+    const requestUser = request as FastifyRequest & {
+        user?: { tenantId: string | null };
+    };
+
+    if (!requestUser.user?.tenantId) {
+        throw new BadRequestError("Hospital nao informado");
+    }
+
+    return requestUser.user.tenantId;
+}
 
 export async function createRawMilkController(
     request: FastifyRequest,
@@ -26,7 +38,6 @@ export async function createRawMilkController(
         observations?: string | null;
     };
 
-    const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const donatorRepository = new DrizzleDonatorRepository();
     const donatorExamsRepository = new DrizzleDonatorExamsRepository();
@@ -38,7 +49,7 @@ export async function createRawMilkController(
 
     const rawMilk = await useCase.execute({
         ...body,
-        tenantId,
+        tenantId: getRequestTenantId(request),
         collectionDate: new Date(body.collectionDate),
         receivedAt: new Date(body.receivedAt),
     });
@@ -61,7 +72,6 @@ export async function getRawMilkController(
         limit?: number;
     };
 
-    const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
@@ -75,8 +85,7 @@ export async function getRawMilkController(
         collectionDateTo: query.collectionDateTo ? new Date(query.collectionDateTo) : undefined,
         page,
         limit,
-    }, tenantId);
-
+    });
 
     return reply.send({
         data,
@@ -89,9 +98,8 @@ export async function getRawMilkByIdController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
-    const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
-    const data = await repository.findById(id, tenantId);
+    const data = await repository.findById(id);
 
     return reply.send({ data });
 }
@@ -101,7 +109,6 @@ export async function updateRawMilkController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
-    const tenantId = getRequestTenantId(request);
     const body = request.body as {
         donorId?: string;
         visitId?: string | null;
@@ -127,7 +134,7 @@ export async function updateRawMilkController(
     }
 
     const repository = new DrizzleRawMilkCollectionRepository();
-    const data = await repository.update(id, tenantId, payload as any);
+    const data = await repository.update(id, payload as any);
 
     return reply.send({ data });
 }
@@ -142,10 +149,9 @@ export async function triageRawMilkBatchController(
         rejectReason?: string;
     };
 
-    const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const useCase = new TriageRawMilkBatchUseCase(repository);
-    const result = await useCase.execute({ tenantId, rawMilkIds, status, rejectReason });
+    const result = await useCase.execute({ rawMilkIds, status, rejectReason });
 
     return reply.send({ updated: result.length });
 }
@@ -155,10 +161,9 @@ export async function approveRawMilkController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
-    const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const useCase = new ApproveRawMilkUseCase(repository);
-    const data = await useCase.execute(id, tenantId);
+    const data = await useCase.execute(id);
 
     return reply.send({ data });
 }
@@ -168,12 +173,11 @@ export async function rejectRawMilkController(
     reply: FastifyReply,
 ) {
     const { id } = request.params;
-    const tenantId = getRequestTenantId(request);
     const { discardReason } = request.body as { discardReason: string };
 
     const repository = new DrizzleRawMilkCollectionRepository();
     const useCase = new RejectRawMilkUseCase(repository);
-    const data = await useCase.execute(id, tenantId, discardReason);
+    const data = await useCase.execute(id, discardReason);
 
     return reply.send({ data });
 }

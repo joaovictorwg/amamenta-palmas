@@ -6,7 +6,6 @@ import { PasteurizedMilkUnitRepository } from "../../repositories/pasteurizedMil
 import { BatchRawMilkRepository } from "../../repositories/batchRawMilk/batchRawMilk.repository";
 
 interface RejectBatchMicrobiologyInput {
-    tenantId: string;
     batchId: string;
     units: Array<{
         volumeMl: number;
@@ -23,7 +22,7 @@ export class RejectBatchMicrobiologyUseCase {
     async execute(input: RejectBatchMicrobiologyInput) {
         return await db.transaction(async (tx) => {
             // Atualiza status do lote para REJECTED
-            const batch = await this.batchRepository.update(input.batchId, input.tenantId, {
+            const batch = await this.batchRepository.update(input.batchId, {
                 microbiologyStatus: MicrobiologyStatus.REJECTED,
             }, tx);
 
@@ -40,7 +39,7 @@ export class RejectBatchMicrobiologyUseCase {
                     expirationDate,
                     stockStatus: PasteurizedMilkStockStatus.DISCARDED,
                     discardReason: "Falha na análise microbiológica do lote",
-                }, input.tenantId, tx);
+                }, tx);
                 createdUnits.push(milkUnit);
             }
 

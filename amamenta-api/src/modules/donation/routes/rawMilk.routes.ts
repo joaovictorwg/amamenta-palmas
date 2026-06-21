@@ -19,7 +19,7 @@ import {
 } from "../schemas/rawMilk.schema";
 
 export async function rawMilkRoutes(app: FastifyInstance) {
-    app.addHook("preHandler", authenticate);
+     app.addHook("preHandler", authenticate);
 
     app.post(
         "/raw-milk",

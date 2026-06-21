@@ -3,7 +3,6 @@ import { RawMilkStorageStatus } from "../enums/rawMilkStorageStatus.enum";
 
 export interface RawMilkCollection {
     id: string;
-    tenantId: string;
     donorId: string;
     visitId?: string | null;
     collectionDate: Date;

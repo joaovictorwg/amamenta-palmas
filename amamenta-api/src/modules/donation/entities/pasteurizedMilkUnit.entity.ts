@@ -2,7 +2,6 @@ import { PasteurizedMilkStockStatus } from "../enums/pasteurizedMilkStatusStock.
 
 export interface PasteurizedMilkUnit {
     id: string;
-    tenantId: string;
     batchId: string;
     volumeMl: number;
     expirationDate: Date;

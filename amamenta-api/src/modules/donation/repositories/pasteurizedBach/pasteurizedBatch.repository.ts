@@ -2,12 +2,11 @@ import { PasteurizationBatch } from "../../entities/pasteurizationBatch.entity";
 import { MicrobiologyStatus } from "../../enums/MicrobiologyStatus.enum";
 
 export interface PasteurizationBatchRepository {
-    create(data: Omit<PasteurizationBatch, "id" | "tenantId" | "createdAt" | "updatedAt">, tenantId: string, tx?: any): Promise<PasteurizationBatch>;
-    findById(id: string, tenantId: string, tx?: any): Promise<PasteurizationBatch | null>;
-    findMany(params: {
+    create(data: Omit<PasteurizationBatch, "id" | "createdAt" | "updatedAt">, tx?: any): Promise<PasteurizationBatch>;
+    findById(id: string, tx?: any): Promise<PasteurizationBatch | null>;
+    findMany(params?: {
         microbiologyStatus?: MicrobiologyStatus;
         operatorId?: string;
-    }, tenantId: string, tx?: any): Promise<PasteurizationBatch[]>;
-    update(id: string, tenantId: string, data: Partial<PasteurizationBatch>, tx?: any): Promise<PasteurizationBatch>;
-    updateStatus(id: string, tenantId: string, microbiologyStatus: MicrobiologyStatus): Promise<PasteurizationBatch>;
+    }, tx?: any): Promise<PasteurizationBatch[]>;
+    update(id: string, data: Partial<PasteurizationBatch>, tx?: any): Promise<PasteurizationBatch>;
 }
