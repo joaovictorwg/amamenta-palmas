@@ -40,9 +40,13 @@ export class CreateInviteUseCase {
                 role: data.role,
                 tenantName: data.tenantName,
             });
-        } catch {
+        } catch (error) {
             await this.inviteRepository.delete(invite.id);
-            throw new AppError("Failed to send invite email", 500);
+            console.error("Failed to send invite email:", error);
+            throw new AppError(
+                error instanceof Error ? error.message : "Failed to send invite email",
+                500
+            );
         }
 
         return invite;

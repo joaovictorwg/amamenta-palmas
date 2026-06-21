@@ -10,22 +10,44 @@ import {
     DrizzleDonatorExamsRepository,
     DrizzleDonatorRepository,
 } from "@/modules/donator/repositories/drizzleDonator.repository";
+import { NotFoundError } from "@/shared/errors/NotFoundError";
 import { getRequestTenantId } from "./getRequestTenantId";
+
+type CreateRawMilkBody = {
+    donorId: string;
+    visitId?: string | null;
+    collectionDate: string | Date;
+    receivedAt: string | Date;
+    volumeMl: number;
+    observations?: string | null;
+};
+
+type RawMilkQuery = {
+    donorId?: string;
+    triageStatus?: RawMilkTriageStatus;
+    storageStatus?: RawMilkStorageStatus;
+    expired?: boolean;
+    collectionDateFrom?: string | Date;
+    collectionDateTo?: string | Date;
+    page?: number;
+    limit?: number;
+};
+
+type UpdateRawMilkBody = {
+    donorId?: string;
+    visitId?: string | null;
+    collectionDate?: string | Date;
+    receivedAt?: string | Date;
+    volumeMl?: number;
+    observations?: string | null;
+    discardReason?: string | null;
+};
 
 export async function createRawMilkController(
     request: FastifyRequest,
     reply: FastifyReply,
 ) {
-    const body = request.body as {
-        donorId: string;
-        visitId?: string | null;
-        collectionDate: string | Date;
-        receivedAt: string | Date;
-        volumeMl: number;
-        createdBy: string;
-        observations?: string | null;
-    };
-
+    const body = request.body as CreateRawMilkBody;
     const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const donatorRepository = new DrizzleDonatorRepository();
@@ -39,6 +61,7 @@ export async function createRawMilkController(
     const rawMilk = await useCase.execute({
         ...body,
         tenantId,
+        createdBy: request.user.id,
         collectionDate: new Date(body.collectionDate),
         receivedAt: new Date(body.receivedAt),
     });
@@ -50,17 +73,7 @@ export async function getRawMilkController(
     request: FastifyRequest,
     reply: FastifyReply,
 ) {
-    const query = request.query as {
-        donorId?: string;
-        triageStatus?: RawMilkTriageStatus;
-        storageStatus?: RawMilkStorageStatus;
-        expired?: string | boolean;
-        collectionDateFrom?: string | Date;
-        collectionDateTo?: string | Date;
-        page?: number;
-        limit?: number;
-    };
-
+    const query = request.query as RawMilkQuery;
     const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const page = query.page ?? 1;
@@ -70,13 +83,12 @@ export async function getRawMilkController(
         donorId: query.donorId,
         triageStatus: query.triageStatus,
         storageStatus: query.storageStatus,
-        expired: query.expired === undefined ? undefined : query.expired === true || query.expired === "true",
+        expired: query.expired,
         collectionDateFrom: query.collectionDateFrom ? new Date(query.collectionDateFrom) : undefined,
         collectionDateTo: query.collectionDateTo ? new Date(query.collectionDateTo) : undefined,
         page,
         limit,
     }, tenantId);
-
 
     return reply.send({
         data,
@@ -93,6 +105,10 @@ export async function getRawMilkByIdController(
     const repository = new DrizzleRawMilkCollectionRepository();
     const data = await repository.findById(id, tenantId);
 
+    if (!data) {
+        throw new NotFoundError("Coleta");
+    }
+
     return reply.send({ data });
 }
 
@@ -102,17 +118,12 @@ export async function updateRawMilkController(
 ) {
     const { id } = request.params;
     const tenantId = getRequestTenantId(request);
-    const body = request.body as {
-        donorId?: string;
-        visitId?: string | null;
-        collectionDate?: string | Date;
-        receivedAt?: string | Date;
-        volumeMl?: number;
-        observations?: string | null;
-        discardReason?: string | null;
-    };
-
-    const payload: Record<string, unknown> = { ...body };
+    const body = request.body as UpdateRawMilkBody;
+    const payload: UpdateRawMilkBody & {
+        collectionDate?: Date;
+        receivedAt?: Date;
+        expirationDate?: Date;
+    } = { ...body };
 
     if (body.collectionDate) {
         const collectionDate = new Date(body.collectionDate);
@@ -127,7 +138,7 @@ export async function updateRawMilkController(
     }
 
     const repository = new DrizzleRawMilkCollectionRepository();
-    const data = await repository.update(id, tenantId, payload as any);
+    const data = await repository.update(id, tenantId, payload);
 
     return reply.send({ data });
 }
@@ -145,7 +156,12 @@ export async function triageRawMilkBatchController(
     const tenantId = getRequestTenantId(request);
     const repository = new DrizzleRawMilkCollectionRepository();
     const useCase = new TriageRawMilkBatchUseCase(repository);
-    const result = await useCase.execute({ tenantId, rawMilkIds, status, rejectReason });
+    const result = await useCase.execute({
+        tenantId,
+        rawMilkIds,
+        status,
+        rejectReason,
+    });
 
     return reply.send({ updated: result.length });
 }

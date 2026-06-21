@@ -17,21 +17,21 @@ export class ResetPasswordUseCase {
         try {
             decoded = verifyResetPasswordToken(token);
         } catch {
-            throw new AppError("i18n:errors.invalid_invite_token", 400);
+            throw new AppError("Token de redefinicao de senha invalido ou expirado", 400);
         }
 
         if (decoded.purpose !== "reset_password") {
-            throw new AppError("i18n:errors.invalid_invite_token", 400);
+            throw new AppError("Token de redefinicao de senha invalido ou expirado", 400);
         }
 
         const user = await this.userRepository.findById(decoded.sub);
         if (!user || user.email !== decoded.email) {
-            throw new AppError("i18n:errors.invalid_invite_token", 400);
+            throw new AppError("Token de redefinicao de senha invalido ou expirado", 400);
         }
 
         const passwordHash = await hashPassword(newPassword);
         await this.userRepository.update(user.id, { passwordHash });
 
-        return { message: "success.email_sent" };
+        return { message: "Senha redefinida com sucesso" };
     }
 }

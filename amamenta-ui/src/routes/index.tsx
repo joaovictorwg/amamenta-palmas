@@ -7,7 +7,9 @@ import DonatorFormPage from "@/pages/Donators/DonatorFormPage";
 import DonatorProfilePage from "@/pages/Donators/DonatorProfilePage";
 import DonatorsListPage from "@/pages/Donators/DonatorsListPage";
 import PendingExamsPage from "@/pages/Donators/PendingExamsPage";
+import ForgotPassword from "@/pages/Common/ForgotPassword/ForgotPassword";
 import LoginPage from "@/pages/Common/Login/Login";
+import ResetPassword from "@/pages/Common/ResetPassword/ResetPassword";
 import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
 import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollectionsPage";
@@ -195,6 +197,14 @@ export const router = createBrowserRouter([
   {
     path: "login",
     element: <LoginPage />,
+  },
+  {
+    path: "forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "reset-password",
+    element: <ResetPassword />,
   },
   {
     path: "accept-invite",

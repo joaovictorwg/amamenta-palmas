@@ -32,6 +32,10 @@ export class CreateRawMilkCollectionUseCase {
             throw new BadRequestError("Data de coleta nao pode ser futura");
         }
 
+        if (input.receivedAt < input.collectionDate) {
+            throw new BadRequestError("Data de recebimento nao pode ser anterior a coleta");
+        }
+
         if (this.donatorRepository && this.donatorExamsRepository) {
             const donator = await this.donatorRepository.findById(
                 input.donorId,
@@ -62,18 +66,21 @@ export class CreateRawMilkCollectionUseCase {
 
         if (input.receivedAt > expirationDate) {
             throw new BadRequestError(
-                "Frasco recebido após prazo permitido para armazenamento domiciliar.",
+                "Frasco recebido apos prazo permitido para armazenamento domiciliar.",
             );
         }
 
         const { tenantId, ...rawMilkData } = input;
 
-        const rawMilk = await this.repository.create({
-            ...rawMilkData,
-            expirationDate,
-            triageStatus: RawMilkTriageStatus.PENDING,
-            storageStatus: RawMilkStorageStatus.STORED,
-        }, tenantId);
+        const rawMilk = await this.repository.create(
+            {
+                ...rawMilkData,
+                expirationDate,
+                triageStatus: RawMilkTriageStatus.PENDING,
+                storageStatus: RawMilkStorageStatus.STORED,
+            },
+            tenantId,
+        );
 
         if (this.donatorRepository) {
             await this.donatorRepository.updateLastCollectionDate(
@@ -86,3 +93,4 @@ export class CreateRawMilkCollectionUseCase {
         return rawMilk;
     }
 }
+

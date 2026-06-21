@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authenticateController } from "../controllers/authenticate.controller";
+import { getAuthenticatedUserController } from "../controllers/getAuthenticatedUser.controller";
 import { registerEmployeeByDomainController } from "../controllers/registerEmployeeByDomain.controller";
 import { resendVerificationEmailController } from "../controllers/resendVerificationEmail.controller";
 import { verifyEmailController } from "../controllers/verifyEmail.controller";
@@ -11,8 +12,17 @@ import { forgotPasswordSchema } from "../schemas/forgotPassword.schema";
 import { forgotPasswordController } from "../controllers/forgotPassword.controller";
 import { resetPasswordSchema } from "../schemas/resetPassword.schema";
 import { resetPasswordController } from "../controllers/resetPassword.controller";
+import { authenticate } from "@/shared/middlewares/authenticate";
 
 export async function authRoutes(app: FastifyInstance) {
+  app.get(
+    "/auth/user",
+    {
+      preHandler: [authenticate],
+    },
+    getAuthenticatedUserController
+  );
+
   app.post(
     "/auth/register-employee",
     {

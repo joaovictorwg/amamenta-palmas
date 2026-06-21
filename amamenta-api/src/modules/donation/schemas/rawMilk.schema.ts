@@ -12,7 +12,6 @@ export const createRawMilkSchema = z.object({
     collectionDate: z.coerce.date(),
     receivedAt: z.coerce.date(),
     volumeMl: z.number().int().positive(),
-    createdBy: z.string().uuid(),
     observations: z.string().nullable().optional(),
 });
 

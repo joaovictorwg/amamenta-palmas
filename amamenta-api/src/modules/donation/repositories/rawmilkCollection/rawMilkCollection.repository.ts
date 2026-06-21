@@ -2,6 +2,15 @@ import { RawMilkCollection } from "../../entities/rawMilkCollection.entity";
 import { RawMilkTriageStatus } from "../../enums/rawMilkTriageStatus.enum";
 import { RawMilkStorageStatus } from "../../enums/rawMilkStorageStatus.enum";
 
+export type CreateRawMilkCollectionData = Omit<
+    RawMilkCollection,
+    "id" | "tenantId" | "createdAt" | "updatedAt"
+>;
+
+export type RawMilkCollectionWithDonor = RawMilkCollection & {
+    donorName?: string | null;
+};
+
 export interface RawMilkFindManyParams {
     donorId?: string;
     triageStatus?: RawMilkTriageStatus;
@@ -14,14 +23,20 @@ export interface RawMilkFindManyParams {
 }
 
 export interface RawMilkFindManyResult {
-    data: (RawMilkCollection & { donorName?: string | null })[];
+    data: RawMilkCollectionWithDonor[];
     total: number;
 }
 
 export interface RawMilkCollectionRepository {
-create(data: Omit<RawMilkCollection, "id" | "tenantId" | "createdAt" | "updatedAt">, tenantId: string): Promise<RawMilkCollection>;
+    create(data: CreateRawMilkCollectionData, tenantId: string): Promise<RawMilkCollection>;
     findById(id: string, tenantId: string): Promise<RawMilkCollection | null>;
     findMany(params: RawMilkFindManyParams, tenantId: string): Promise<RawMilkFindManyResult>;
     update(id: string, tenantId: string, data: Partial<RawMilkCollection>): Promise<RawMilkCollection>;
-    updateStatus(id: string, tenantId: string, triageStatus?: RawMilkTriageStatus, storageStatus?: RawMilkStorageStatus, rejectReason?: string): Promise<RawMilkCollection>;
+    updateStatus(
+        id: string,
+        tenantId: string,
+        triageStatus?: RawMilkTriageStatus,
+        storageStatus?: RawMilkStorageStatus,
+        rejectReason?: string,
+    ): Promise<RawMilkCollection>;
 }
