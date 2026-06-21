@@ -27,10 +27,14 @@ export const triageRawMilkBatchSchema = z.object({
 });
 
 export const rawMilkQuerySchema = z.object({
+   page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(10),
     donorId: z.string().uuid().optional(),
     triageStatus: z.nativeEnum(RawMilkTriageStatus).optional(),
     storageStatus: z.nativeEnum(RawMilkStorageStatus).optional(),
     expired: z.enum(["true", "false"]).transform((value) => value === "true").optional(),
+    collectionDateFrom: z.coerce.date().optional(),
+    collectionDateTo: z.coerce.date().optional(),
 });
 
 export const rejectRawMilkSchema = z.object({

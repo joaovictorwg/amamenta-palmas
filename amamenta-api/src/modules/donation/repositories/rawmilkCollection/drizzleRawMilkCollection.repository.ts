@@ -1,12 +1,15 @@
-
 import { db } from "@/shared/database/connection";
 import { rawMilkCollections } from "@/shared/database/schema/rawMilkCollections.schema";
-import { eq, and, lte, gt } from "drizzle-orm";
+import { donators } from "@/shared/database/schema/donator.schema";
+import { eq, and, lte, gt, gte, sql } from "drizzle-orm";
 import { RawMilkCollection } from "../../entities/rawMilkCollection.entity";
-import { RawMilkCollectionRepository } from "./rawMilkCollection.repository";
+import {
+    RawMilkCollectionRepository,
+    RawMilkFindManyParams,
+    RawMilkFindManyResult,
+} from "./rawMilkCollection.repository";
 import { RawMilkTriageStatus } from "../../enums/rawMilkTriageStatus.enum";
 import { RawMilkStorageStatus } from "../../enums/rawMilkStorageStatus.enum";
-
 
 export class DrizzleRawMilkCollectionRepository implements RawMilkCollectionRepository {
 
@@ -19,40 +22,63 @@ export class DrizzleRawMilkCollectionRepository implements RawMilkCollectionRepo
         return created as RawMilkCollection;
     }
 
-
     async findById(id: string): Promise<RawMilkCollection | null> {
         const [found] = await db.select().from(rawMilkCollections).where(eq(rawMilkCollections.id, id));
         return (found as RawMilkCollection) || null;
     }
 
-    async findMany(params: {
-        donorId?: string;
-        triageStatus?: RawMilkTriageStatus;
-        storageStatus?: RawMilkStorageStatus;
-        expired?: boolean;
-    } = {}): Promise<RawMilkCollection[]> {
+    async findMany(params: RawMilkFindManyParams = {}): Promise<RawMilkFindManyResult> {
         const conditions = [];
-        if (params.donorId) {
-            conditions.push(eq(rawMilkCollections.donorId, params.donorId));
-        }
-        if (params.triageStatus !== undefined) {
-            conditions.push(eq(rawMilkCollections.triageStatus, params.triageStatus));
-        }
-        if (params.storageStatus !== undefined) {
-            conditions.push(eq(rawMilkCollections.storageStatus, params.storageStatus));
-        }
+        if (params.donorId) conditions.push(eq(rawMilkCollections.donorId, params.donorId));
+        if (params.triageStatus !== undefined) conditions.push(eq(rawMilkCollections.triageStatus, params.triageStatus));
+        if (params.storageStatus !== undefined) conditions.push(eq(rawMilkCollections.storageStatus, params.storageStatus));
         if (params.expired !== undefined) {
-            if (params.expired) {
-                conditions.push(lte(rawMilkCollections.expirationDate, new Date()));
-            } else {
-                conditions.push(gt(rawMilkCollections.expirationDate, new Date()));
-            }
+            conditions.push(
+                params.expired
+                    ? lte(rawMilkCollections.expirationDate, new Date())
+                    : gt(rawMilkCollections.expirationDate, new Date()),
+            );
         }
-        const query = db
-            .select()
-            .from(rawMilkCollections)
-            .where(conditions.length ? and(...conditions) : undefined);
-        return await query as RawMilkCollection[];
+        if (params.collectionDateFrom) conditions.push(gte(rawMilkCollections.collectionDate, params.collectionDateFrom));
+        if (params.collectionDateTo) conditions.push(lte(rawMilkCollections.collectionDate, params.collectionDateTo));
+
+        const where = conditions.length ? and(...conditions) : undefined;
+        const page = params.page ?? 1;
+        const limit = params.limit ?? 10;
+        const offset = (page - 1) * limit;
+
+        const [data, totalResult] = await Promise.all([
+            db
+                .select({
+                    id: rawMilkCollections.id,
+                    donorId: rawMilkCollections.donorId,
+                    donorName: donators.name,
+                    visitId: rawMilkCollections.visitId,
+                    collectionDate: rawMilkCollections.collectionDate,
+                    receivedAt: rawMilkCollections.receivedAt,
+                    volumeMl: rawMilkCollections.volumeMl,
+                    expirationDate: rawMilkCollections.expirationDate,
+                    triageStatus: rawMilkCollections.triageStatus,
+                    storageStatus: rawMilkCollections.storageStatus,
+                    discardReason: rawMilkCollections.discardReason,
+                    observations: rawMilkCollections.observations,
+                    createdBy: rawMilkCollections.createdBy,
+                    createdAt: rawMilkCollections.createdAt,
+                    updatedAt: rawMilkCollections.updatedAt,
+                })
+                .from(rawMilkCollections)
+                .leftJoin(donators, eq(donators.id, rawMilkCollections.donorId))
+                .where(where)
+                .orderBy(sql`${rawMilkCollections.createdAt} desc`)
+                .limit(limit)
+                .offset(offset),
+            db.select({ count: sql<number>`count(*)` }).from(rawMilkCollections).where(where),
+        ]);
+
+        return {
+            data: data as (RawMilkCollection & { donorName?: string | null })[],
+            total: Number(totalResult[0]?.count ?? 0),
+        };
     }
 
     async update(id: string, data: Partial<RawMilkCollection>): Promise<RawMilkCollection> {

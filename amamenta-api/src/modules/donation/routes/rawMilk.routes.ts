@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { authenticate } from "@/shared/middlewares/authenticate";
 import {
     approveRawMilkController,
     createRawMilkController,
@@ -18,10 +19,13 @@ import {
 } from "../schemas/rawMilk.schema";
 
 export async function rawMilkRoutes(app: FastifyInstance) {
+     app.addHook("preHandler", authenticate);
+
     app.post(
         "/raw-milk",
         { schema: { body: createRawMilkSchema } },
         createRawMilkController,
+
     );
     app.get(
         "/raw-milk",

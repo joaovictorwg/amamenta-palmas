@@ -66,17 +66,31 @@ export async function getRawMilkController(
         triageStatus?: RawMilkTriageStatus;
         storageStatus?: RawMilkStorageStatus;
         expired?: string | boolean;
+        collectionDateFrom?: string | Date;
+        collectionDateTo?: string | Date;
+        page?: number;
+        limit?: number;
     };
 
     const repository = new DrizzleRawMilkCollectionRepository();
-    const data = await repository.findMany({
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
+    const { data, total } = await repository.findMany({
         donorId: query.donorId,
         triageStatus: query.triageStatus,
         storageStatus: query.storageStatus,
         expired: query.expired === undefined ? undefined : query.expired === true || query.expired === "true",
+        collectionDateFrom: query.collectionDateFrom ? new Date(query.collectionDateFrom) : undefined,
+        collectionDateTo: query.collectionDateTo ? new Date(query.collectionDateTo) : undefined,
+        page,
+        limit,
     });
 
-    return reply.send({ data });
+    return reply.send({
+        data,
+        meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
+    });
 }
 
 export async function getRawMilkByIdController(

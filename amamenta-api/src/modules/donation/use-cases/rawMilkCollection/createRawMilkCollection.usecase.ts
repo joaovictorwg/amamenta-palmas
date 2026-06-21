@@ -60,6 +60,12 @@ export class CreateRawMilkCollectionUseCase {
         const expirationDate = new Date(input.collectionDate);
         expirationDate.setDate(expirationDate.getDate() + 15);
 
+        if (input.receivedAt > expirationDate) {
+            throw new BadRequestError(
+                "Frasco recebido após prazo permitido para armazenamento domiciliar.",
+            );
+        }
+
         const rawMilk = await this.repository.create({
             ...input,
             expirationDate,
