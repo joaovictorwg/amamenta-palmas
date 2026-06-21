@@ -50,7 +50,7 @@ async findById(id: string, tenantId: string): Promise<RawMilkCollection | null> 
         const limit = params.limit ?? 10;
         const offset = (page - 1) * limit;
 
-        const [data, totalResult] = await Promise.all([
+        const [data, totalResult] = await Promise.all([  
             db
                 .select({
                     id: rawMilkCollections.id,
