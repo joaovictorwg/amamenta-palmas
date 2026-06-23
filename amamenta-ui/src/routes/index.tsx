@@ -17,6 +17,7 @@ import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
 import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollectionsPage";
 import DonationsPage from "@/pages/Default/Donations/DonationsPage";
+import PasteurizationBatchesPage from "@/pages/Default/Donations/PasteurizationBatchesPage";
 
 import {
   ALLOWED_DASHBOARD_ROLES,
@@ -78,13 +79,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "doacoes/lotes",
-        element: (
-          <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Lotes"
-            description="Controle dos lotes de pasteurizacao."
-          />
-        ),
+        element: <PasteurizationBatchesPage />,
       },
       {
         path: "doacoes/estoque",
