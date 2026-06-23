@@ -31,7 +31,9 @@ app.register(donationsRoutes);
 
 // CORS
 app.register(fastifyCors, {
-  origin: env.frontendUrl ? env.frontendUrl.split(",") : true,
+  origin: env.frontendUrl
+    ? env.frontendUrl.split(",").map((origin) => origin.trim()).filter(Boolean)
+    : true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 });
 
