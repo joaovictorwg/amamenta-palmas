@@ -4,15 +4,19 @@ import SuperAdminLayout from "@/layouts/SuperAdminLayout";
 import AcceptInvite from "@/pages/AcceptInvite/AcceptInvite";
 import AppConfiguration from "@/pages/SuperAdmin/AppConfiguration/AppConfiguration";
 import DonatorFormPage from "@/pages/Donators/DonatorFormPage";
+import DonatorsOverviewPage from "@/pages/Donators/DonatorsOverviewPage";
 import DonatorProfilePage from "@/pages/Donators/DonatorProfilePage";
 import DonatorsListPage from "@/pages/Donators/DonatorsListPage";
 import PendingExamsPage from "@/pages/Donators/PendingExamsPage";
+import VisitsPage from "@/pages/Visits/VisitsPage";
+import GeneralViewPage from "@/pages/Default/GeneralView/GeneralViewPage";
 import ForgotPassword from "@/pages/Common/ForgotPassword/ForgotPassword";
 import LoginPage from "@/pages/Common/Login/Login";
 import ResetPassword from "@/pages/Common/ResetPassword/ResetPassword";
 import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
 import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollectionsPage";
+import DonationsPage from "@/pages/Default/Donations/DonationsPage";
 
 import {
   ALLOWED_DASHBOARD_ROLES,
@@ -37,13 +41,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "visao-geral",
-        element: (
-          <ModulePlaceholder
-            moduleName="Visao Geral"
-            title="Visao Geral"
-            description="Resumo operacional do banco de leite e principais pendencias."
-          />
-        ),
+        element: <GeneralViewPage />,
       },
       {
         path: "visao-geral/alertas",
@@ -71,13 +69,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "doacoes",
-        element: (
-          <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Visao Geral"
-            description="Acompanhamento de coletas, lotes, estoque e metricas."
-          />
-        ),
+        element: <DonationsPage />,
       },
       {
         path: "doacoes/coletas",
@@ -116,7 +108,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "doadoras",
-        element: <DonatorsListPage />,
+        element: <DonatorsOverviewPage />,
       },
       {
         path: "doadoras/lista",
@@ -150,33 +142,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "visitas",
-        element: (
-          <ModulePlaceholder
-            moduleName="Visitas"
-            title="Agenda"
-            description="Agenda de visitas e coletas domiciliares."
-          />
-        ),
+        element: <VisitsPage />,
       },
       {
         path: "visitas/hoje",
-        element: (
-          <ModulePlaceholder
-            moduleName="Visitas"
-            title="Hoje"
-            description="Visitas programadas para o dia."
-          />
-        ),
+        element: <VisitsPage todayOnly />,
       },
       {
         path: "visitas/historico",
-        element: (
-          <ModulePlaceholder
-            moduleName="Visitas"
-            title="Historico"
-            description="Historico de visitas realizadas."
-          />
-        ),
+        element: <VisitsPage />,
       },
     ],
   },

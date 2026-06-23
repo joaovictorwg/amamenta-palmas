@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { api } from "@/services/api";
-import { saveToken } from "@/services/auth";
+import { clearToken, saveToken } from "@/services/auth";
 
 import { ALLOWED_DASHBOARD_ROLES, ROLES } from "@/constants/roles";
 import { useTranslation } from "react-i18next";
@@ -79,7 +79,9 @@ export function useLogin() {
             if (ALLOWED_DASHBOARD_ROLES.includes(user.role)) {
                 navigate("/");
             } else {
-                navigate("/unauthorized");
+                clearToken();
+                setUser(null);
+                navigate("/login");
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {

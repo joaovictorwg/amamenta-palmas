@@ -1,8 +1,12 @@
+import { ROLES } from "@/constants/roles";
+import type { UserRole } from "@/types/auth";
+
 export type AppSectionId = "overview" | "donations" | "donators" | "visits";
 
 export type SideNavItem = {
   label: string;
   path: string;
+  roles?: UserRole[];
 };
 
 export type AppSection = {
@@ -21,7 +25,7 @@ export const appSections: AppSection[] = [
       { label: "Resumo", path: "/visao-geral" },
       { label: "Alertas", path: "/visao-geral/alertas" },
       { label: "Metricas", path: "/visao-geral/metricas" },
-      { label: "Equipe", path: "/visao-geral/equipe" },
+      { label: "Equipe", path: "/visao-geral/equipe", roles: [ROLES.ADMIN] },
     ],
   },
   {
