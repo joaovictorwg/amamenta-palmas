@@ -7,11 +7,13 @@ import {
   BrModal,
   BrTable,
   BrTag,
+  BrSelect,
   BrTextarea,
   type BrTableColumn,
 } from "@govbr-ds/react-components";
 
 import { approvePasteurizationBatch, api, rejectPasteurizationBatch } from "@/services/api";
+import type { RawMilkCollection, RawMilkResponse } from "@/types/rawMilk";
 
 import "./PasteurizationBatchesPage.css";
 
@@ -37,6 +39,11 @@ type FeedbackState = {
   title: string;
   message: string;
 } | null;
+
+type RawMilkOption = {
+  label: string;
+  value: string;
+};
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -69,8 +76,18 @@ export default function PasteurizationBatchesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<PasteurizationBatch | null>(null);
   const [modalView, setModalView] = useState<ModalView>("details");
+  const [createBatchCode, setCreateBatchCode] = useState("");
+  const [createPasteurizedAt, setCreatePasteurizedAt] = useState("");
+  const [createOperatorId, setCreateOperatorId] = useState("");
+  const [createObservations, setCreateObservations] = useState("");
+  const [createRawMilkIds, setCreateRawMilkIds] = useState<string[]>([]);
+  const [availableRawMilk, setAvailableRawMilk] = useState<RawMilkCollection[]>([]);
+  const [availableRawMilkLoading, setAvailableRawMilkLoading] = useState(false);
+  const [availableRawMilkError, setAvailableRawMilkError] = useState<string | null>(null);
+  const [createMessage, setCreateMessage] = useState<FeedbackState>(null);
   const [approveVolumeFinalMl, setApproveVolumeFinalMl] = useState("");
   const [approveGeneratedUnits, setApproveGeneratedUnits] = useState("");
   const [rejectReason, setRejectReason] = useState("");
@@ -78,11 +95,25 @@ export default function PasteurizationBatchesPage() {
   const [modalMessage, setModalMessage] = useState<FeedbackState>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const rawMilkOptions = useMemo<RawMilkOption[]>(
+    () =>
+      availableRawMilk.map((milk) => ({
+        value: milk.id,
+        label: `${milk.donorName ?? milk.donorId} - ${milk.volumeMl} ml - ${formatDateTime(milk.collectionDate)}`,
+      })),
+    [availableRawMilk],
+  );
+
   const approveVolumeValue = Number(approveVolumeFinalMl);
   const approveUnitsValue = Number(approveGeneratedUnits);
   const canApprove = Number.isInteger(approveVolumeValue) && approveVolumeValue > 0
     && Number.isInteger(approveUnitsValue) && approveUnitsValue > 0;
   const canReject = rejectReason.trim().length > 0;
+  const canCreateBatch =
+    createBatchCode.trim().length > 0 &&
+    createPasteurizedAt.trim().length > 0 &&
+    createOperatorId.trim().length > 0 &&
+    createRawMilkIds.length > 0;
 
   useEffect(() => {
     if (!pageMessage) {
@@ -95,6 +126,37 @@ export default function PasteurizationBatchesPage() {
 
     return () => window.clearTimeout(timeout);
   }, [pageMessage]);
+
+  useEffect(() => {
+    if (!isCreateModalOpen) {
+      setCreateMessage(null);
+      return;
+    }
+
+    async function loadAvailableRawMilk() {
+      setAvailableRawMilkLoading(true);
+      setAvailableRawMilkError(null);
+
+      try {
+        const response = await api.get<RawMilkResponse>("/donations/raw-milk", {
+          params: {
+            page: 1,
+            limit: 50,
+            triageStatus: "APPROVED",
+            storageStatus: "STORED",
+          },
+        });
+
+        setAvailableRawMilk(response.data.data);
+      } catch {
+        setAvailableRawMilkError("Nao foi possivel carregar os frascos aprovados para o lote.");
+      } finally {
+        setAvailableRawMilkLoading(false);
+      }
+    }
+
+    void loadAvailableRawMilk();
+  }, [isCreateModalOpen]);
 
   async function loadBatches() {
     setLoading(true);
@@ -130,6 +192,17 @@ export default function PasteurizationBatchesPage() {
     setRejectReason("");
     setModalMessage(null);
   }, [selectedBatch]);
+
+  useEffect(() => {
+    if (!isCreateModalOpen) {
+      setCreateBatchCode("");
+      setCreatePasteurizedAt("");
+      setCreateOperatorId("");
+      setCreateObservations("");
+      setCreateRawMilkIds([]);
+      setCreateMessage(null);
+    }
+  }, [isCreateModalOpen]);
 
   const filteredBatches = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -168,7 +241,7 @@ export default function PasteurizationBatchesPage() {
         render: (value) => getStatusTag(value as PasteurizationBatch["microbiologyStatus"]),
       },
       {
-        key: "actions",
+        key: "updatedAt",
         title: "Ações",
         width: "22%",
         align: "right",
@@ -288,6 +361,60 @@ export default function PasteurizationBatchesPage() {
     }
   }
 
+  async function handleCreateBatch() {
+    if (!canCreateBatch) {
+      setCreateMessage({
+        status: "danger",
+        title: "Validação obrigatória",
+        message: "Informe o código do lote, data, operador e ao menos um frasco aprovado.",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    setCreateMessage({
+      status: "info",
+      title: "Processando",
+      message: "Criando lote de pasteurização.",
+    });
+
+    try {
+      await api.post("/donations/pasteurization-batches", {
+        batchCode: createBatchCode.trim(),
+        pasteurizedAt: createPasteurizedAt,
+        operatorId: createOperatorId.trim(),
+        rawMilkIds: createRawMilkIds,
+        observations: createObservations.trim() || undefined,
+      });
+
+      setPageMessage({
+        status: "success",
+        title: "Sucesso",
+        message: "Lote criado com sucesso.",
+      });
+
+      setCreateMessage({
+        status: "success",
+        title: "Lote criado",
+        message: "O novo lote foi registrado e a tabela será atualizada.",
+      });
+
+      await loadBatches();
+
+      window.setTimeout(() => {
+        setIsCreateModalOpen(false);
+      }, 700);
+    } catch {
+      setCreateMessage({
+        status: "danger",
+        title: "Erro",
+        message: "Não foi possível criar o lote.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   function closeModal() {
     setSelectedBatch(null);
     setModalView("details");
@@ -297,8 +424,24 @@ export default function PasteurizationBatchesPage() {
     setModalMessage(null);
   }
 
+  function closeCreateModal() {
+    setIsCreateModalOpen(false);
+    setCreateMessage(null);
+  }
+
   return (
     <section className="pasteurization-batches">
+      <nav className="br-breadcrumb pasteurization-batches__breadcrumb" aria-label="Breadcrumb">
+        <ol className="crumb-list">
+          <li className="crumb-list__item">
+            <Link className="crumb-link" to="/doacoes">Doações</Link>
+          </li>
+          <li className="crumb-list__item crumb-list__item--active" aria-current="page">
+            <span>Lotes</span>
+          </li>
+        </ol>
+      </nav>
+
       <header className="pasteurization-batches__header">
         <div>
           <h1 className="pasteurization-batches__title">Lotes de Pasteurização</h1>
@@ -306,6 +449,9 @@ export default function PasteurizationBatchesPage() {
             Lista dos ciclos de pasteurização cadastrados no modulo de Doações.
           </p>
         </div>
+        <BrButton icon="plus" primary onClick={() => setIsCreateModalOpen(true)}>
+          Novo Lote
+        </BrButton>
       </header>
 
       <div className="pasteurization-batches__filters">
@@ -484,6 +630,84 @@ export default function PasteurizationBatchesPage() {
             )}
           </div>
         )}
+      </BrModal>
+
+      <BrModal
+        isOpen={isCreateModalOpen}
+        onClose={closeCreateModal}
+        showClose
+        title="Novo lote de pasteurização"
+      >
+        <div className="pasteurization-batches__modal">
+          {createMessage && (
+            <BrMessage
+              category="message"
+              message={createMessage.message}
+              status={createMessage.status}
+              title={createMessage.title}
+            />
+          )}
+
+          {availableRawMilkError && (
+            <BrMessage
+              category="message"
+              message={availableRawMilkError}
+              status="danger"
+              title="Erro ao carregar frascos"
+            />
+          )}
+
+          <BrMessage
+            category="message"
+            message="Selecione os frascos aprovados e informacoes operacionais do ciclo de pasteurizacao."
+            status="info"
+            title="Criacao do lote"
+          />
+
+          <div className="pasteurization-batches__action-form">
+            <BrInput
+              label="Codigo do lote"
+              placeholder="Ex.: LOTE-2026-001"
+              value={createBatchCode}
+              onChange={(event) => setCreateBatchCode(event.currentTarget.value)}
+            />
+            <BrInput
+              label="Data da pasteurizacao"
+              type="datetime-local"
+              value={createPasteurizedAt}
+              onChange={(event) => setCreatePasteurizedAt(event.currentTarget.value)}
+            />
+            <BrInput
+              label="ID do operador"
+              placeholder="UUID do operador"
+              value={createOperatorId}
+              onChange={(event) => setCreateOperatorId(event.currentTarget.value)}
+            />
+            <BrSelect<string[]>
+              label="Frascos aprovados"
+              options={rawMilkOptions}
+              value={createRawMilkIds}
+              type="multiple"
+              placeholder={availableRawMilkLoading ? "Carregando frascos..." : "Selecione os frascos"}
+              isLoading={availableRawMilkLoading}
+              onChange={(newValue) => setCreateRawMilkIds(newValue)}
+            />
+            <BrTextarea
+              label="Observacoes"
+              placeholder="Observacoes operacionais do lote"
+              value={createObservations}
+              onChange={(event) => setCreateObservations(event.currentTarget.value)}
+            />
+            <div className="pasteurization-batches__form-actions">
+              <BrButton disabled={submitting} onClick={closeCreateModal} secondary>
+                Cancelar
+              </BrButton>
+              <BrButton disabled={submitting || !canCreateBatch} onClick={() => void handleCreateBatch()} primary>
+                Criar lote
+              </BrButton>
+            </div>
+          </div>
+        </div>
       </BrModal>
     </section>
   );
