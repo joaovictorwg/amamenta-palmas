@@ -8,9 +8,7 @@ interface ApproveBatchMicrobiologyInput {
     tenantId: string;
     batchId: string;
     volumeFinalMl: number;
-    units: Array<{
-        volumeMl: number;
-    }>;
+    generatedUnits: number;
 }
 
 export class ApproveBatchMicrobiologyUseCase {
@@ -21,27 +19,33 @@ export class ApproveBatchMicrobiologyUseCase {
 
     async execute(input: ApproveBatchMicrobiologyInput) {
         return await db.transaction(async (tx) => {
-            // Aprova microbiologia do lote
-            const batch = await this.batchRepository.update(input.batchId, input.tenantId, {
+            const batch = await this.batchRepository.findById(input.batchId, input.tenantId, tx);
+            if (!batch) {
+                throw new Error("PasteurizationBatch not found");
+            }
+
+            const approvedBatch = await this.batchRepository.update(input.batchId, input.tenantId, {
                 microbiologyStatus: MicrobiologyStatus.APPROVED,
             }, tx);
 
-            // Cria as unidades pasteurizadas
-            const expirationDate = new Date(batch.pasteurizedAt);
+            const expirationDate = new Date(approvedBatch.pasteurizedAt);
             expirationDate.setMonth(expirationDate.getMonth() + 6);
 
+            const baseVolume = Math.floor(input.volumeFinalMl / input.generatedUnits);
+            const remainder = input.volumeFinalMl % input.generatedUnits;
+
             const createdUnits = [];
-            for (const unit of input.units) {
+            for (let index = 0; index < input.generatedUnits; index += 1) {
                 const milkUnit = await this.milkUnitRepository.create({
-                    batchId: batch.id,
-                    volumeMl: unit.volumeMl,
+                    batchId: approvedBatch.id,
+                    volumeMl: baseVolume + (index < remainder ? 1 : 0),
                     expirationDate,
                     stockStatus: PasteurizedMilkStockStatus.AVAILABLE,
                 }, input.tenantId, tx);
                 createdUnits.push(milkUnit);
             }
 
-            return { batch, units: createdUnits };
+            return { batch: approvedBatch, units: createdUnits };
         });
     }
 }

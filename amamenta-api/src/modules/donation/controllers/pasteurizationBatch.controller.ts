@@ -8,6 +8,22 @@ import { DrizzleBatchRawMilkRepository } from "../repositories/batchRawMilk/driz
 import { DrizzlePasteurizedMilkUnitRepository } from "../repositories/pasteurizedMilkUnit/drizzlePasteurizedMilkUnit.repository";
 import { MicrobiologyStatus } from "../enums/MicrobiologyStatus.enum";
 import { getRequestTenantId } from "./getRequestTenantId";
+import {
+    approvePasteurizationBatchSchema,
+    pasteurizationBatchIdParamsSchema,
+    rejectPasteurizationBatchSchema,
+} from "../schemas/pasteurizationBatch.schema";
+import { AppError } from "@/shared/errors/AppError";
+import { ValidationError } from "@/shared/errors/ValidationError";
+import { ZodError } from "zod";
+
+function formatZodError(error: ZodError): string {
+    if (error.issues.length === 1) {
+        return error.issues[0]?.message ?? "Invalid request body";
+    }
+
+    return error.issues.map((issue) => issue.message).join(", ");
+}
 
 export async function createPasteurizationBatchController(
     request: FastifyRequest,
@@ -72,49 +88,68 @@ export async function approvePasteurizationBatchController(
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) {
-    const { id } = request.params;
-    const tenantId = getRequestTenantId(request);
-    const body = request.body as {
-        volumeFinalMl?: number;
-        units: Array<{ volumeMl: number }>;
-    };
+    try {
+        const { id } = pasteurizationBatchIdParamsSchema.parse(request.params);
+        const body = approvePasteurizationBatchSchema.parse(request.body);
+        const tenantId = getRequestTenantId(request);
 
-    const useCase = new ApproveBatchMicrobiologyUseCase(
-        new DrizzlePasteurizationBatchRepository(),
-        new DrizzlePasteurizedMilkUnitRepository(),
-    );
+        const useCase = new ApproveBatchMicrobiologyUseCase(
+            new DrizzlePasteurizationBatchRepository(),
+            new DrizzlePasteurizedMilkUnitRepository(),
+        );
 
-    const data = await useCase.execute({
-        tenantId,
-        batchId: id,
-        volumeFinalMl: body.volumeFinalMl ?? 0,
-        units: body.units,
-    });
+        await useCase.execute({
+            tenantId,
+            batchId: id,
+            volumeFinalMl: body.volumeFinalMl,
+            generatedUnits: body.generatedUnits,
+        });
 
-    return reply.send({ data });
+        return reply.status(204).send();
+    } catch (error) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        if (error instanceof ZodError) {
+            throw new ValidationError(formatZodError(error));
+        }
+
+        throw error;
+    }
 }
 
 export async function rejectPasteurizationBatchController(
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) {
-    const { id } = request.params;
-    const tenantId = getRequestTenantId(request);
-    const body = request.body as {
-        units: Array<{ volumeMl: number }>;
-    };
+    try {
+        const { id } = pasteurizationBatchIdParamsSchema.parse(request.params);
+        const body = rejectPasteurizationBatchSchema.parse(request.body);
+        const tenantId = getRequestTenantId(request);
 
-    const useCase = new RejectBatchMicrobiologyUseCase(
-        new DrizzlePasteurizationBatchRepository(),
-        new DrizzlePasteurizedMilkUnitRepository(),
-        new DrizzleBatchRawMilkRepository(),
-    );
+        const useCase = new RejectBatchMicrobiologyUseCase(
+            new DrizzlePasteurizationBatchRepository(),
+            new DrizzlePasteurizedMilkUnitRepository(),
+            new DrizzleBatchRawMilkRepository(),
+        );
 
-    const data = await useCase.execute({
-        tenantId,
-        batchId: id,
-        units: body.units,
-    });
+        await useCase.execute({
+            tenantId,
+            batchId: id,
+            reason: body.reason,
+        });
 
-    return reply.send({ data });
+        return reply.status(204).send();
+    } catch (error) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        if (error instanceof ZodError) {
+            throw new ValidationError(formatZodError(error));
+        }
+
+        throw error;
+    }
 }
