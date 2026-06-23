@@ -1,0 +1,1 @@
+ALTER TABLE "donatos" RENAME TO "donators";
