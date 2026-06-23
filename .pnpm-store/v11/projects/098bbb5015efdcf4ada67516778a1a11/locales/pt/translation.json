@@ -1,0 +1,18 @@
+{
+    "errors": {
+        "user_already_exists": "Este e-mail já está cadastrado.",
+        "invalid_invite_token": "Token inválido ou expirado.",
+        "invite_already_used": "Este convite já foi utilizado.",
+        "tenant_not_found": "Organização não encontrada.",
+        "unauthorized": "Não autorizado.",
+        "internal_server_error": "Erro interno do servidor.",
+        "email_send_failed": "Falha ao enviar e-mail.",
+        "forbidden": "Acesso negado."
+    },
+    "success": {
+        "invite_accepted": "Convite aceito com sucesso!",
+        "user_registered": "Usuário registrado com sucesso!",
+        "email_sent": "E-mail enviado com sucesso!",
+        "password_reset": "Senha redefinida com sucesso!"
+    }
+}

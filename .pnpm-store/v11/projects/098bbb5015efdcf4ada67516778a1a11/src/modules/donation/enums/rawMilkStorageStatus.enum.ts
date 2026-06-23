@@ -1,0 +1,7 @@
+export enum RawMilkStorageStatus {
+    STORED = "STORED",
+    WAITING_BATCH = "WAITING_BATCH",
+    USED_IN_BATCH = "USED_IN_BATCH",
+    EXPIRED = "EXPIRED",
+    DISCARDED = "DISCARDED",
+}

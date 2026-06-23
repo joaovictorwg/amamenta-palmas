@@ -1,0 +1,5 @@
+export enum ExamResult {
+  NON_REACTIVE = "NON_REACTIVE",
+  REACTIVE = "REACTIVE",
+  UNAVAILABLE = "UNAVAILABLE",
+}

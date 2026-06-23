@@ -58,3 +58,18 @@ export const VisibilityButton = styled.span<{ $errorVisible: boolean }>`
     cursor: pointer;
     z-index: 10;
 `;
+
+export const ForgotPasswordLink = styled.div`
+    align-self: flex-end;
+    font-size: 14px;
+    margin-top: 8px;
+
+    a {
+        color: var(--interactive, #1351b4);
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+`;
