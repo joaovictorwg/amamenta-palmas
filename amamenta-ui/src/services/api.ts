@@ -5,12 +5,8 @@ import {
     clearToken,
 } from "./auth";
 
-const apiBaseURL =
-    import.meta.env.VITE_API_URL ??
-    (import.meta.env.DEV ? "http://localhost:3333" : undefined);
-
 export const api = axios.create({
-    baseURL: apiBaseURL,
+    baseURL: import.meta.env.VITE_API_URL,
 });
 
 export async function approvePasteurizationBatch(
