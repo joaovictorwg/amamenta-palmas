@@ -11,6 +11,8 @@ import LoginPage from "@/pages/Common/Login/Login";
 import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
 import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollectionsPage";
+import StoragePage from "@/pages/Default/Donations/StoragePage";
+import LotsPage from "@/pages/Default/Donations/LotsPage";
 
 import {
   ALLOWED_DASHBOARD_ROLES,
@@ -84,23 +86,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "doacoes/lotes",
-        element: (
-          <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Lotes"
-            description="Controle dos lotes de pasteurizacao."
-          />
-        ),
+        element: <LotsPage />,
       },
       {
         path: "doacoes/estoque",
-        element: (
-          <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Estoque"
-            description="Disponibilidade e distribuicao do leite pasteurizado."
-          />
-        ),
+        element: <StoragePage />,
       },
       {
         path: "doacoes/metricas",
