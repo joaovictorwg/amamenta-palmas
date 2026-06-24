@@ -12,6 +12,7 @@ import {
     approvePasteurizationBatchSchema,
     pasteurizationBatchIdParamsSchema,
     rejectPasteurizationBatchSchema,
+    createPasteurizationBatchSchema
 } from "../schemas/pasteurizationBatch.schema";
 import { AppError } from "@/shared/errors/AppError";
 import { ValidationError } from "@/shared/errors/ValidationError";
@@ -29,28 +30,42 @@ export async function createPasteurizationBatchController(
     request: FastifyRequest,
     reply: FastifyReply,
 ) {
-    const body = request.body as {
-        batchCode: string;
-        pasteurizedAt: string | Date;
-        operatorId: string;
-        rawMilkIds: string[];
-        observations?: string | null;
-    };
+    try {
+        const body = request.body as {
+            batchCode: string;
+            pasteurizedAt: string | Date;
+            operatorId: string;
+            rawMilkIds: string[];
+            observations?: string | null;
+        };
 
-    const tenantId = getRequestTenantId(request);
-    const useCase = new CreatePasteurizationUseBatchCase(
-        new DrizzlePasteurizationBatchRepository(),
-        new DrizzleRawMilkCollectionRepository(),
-        new DrizzleBatchRawMilkRepository(),
-    );
+        const tenantId = getRequestTenantId(request);
+        const useCase = new CreatePasteurizationUseBatchCase(
+            new DrizzlePasteurizationBatchRepository(),
+            new DrizzleRawMilkCollectionRepository(),
+            new DrizzleBatchRawMilkRepository(),
+        );
 
-    const data = await useCase.execute({
-        ...body,
-        tenantId,
-        pasteurizedAt: new Date(body.pasteurizedAt),
-    });
+        const data = await useCase.execute({
+            ...body,
+            tenantId,
+            pasteurizedAt: new Date(body.pasteurizedAt),
+        });
 
-    return reply.status(201).send({ data });
+        return reply.status(201).send({ data });
+    } catch (error: any) {
+        if (error instanceof AppError) {
+            throw error;
+        }
+
+        if (error instanceof ZodError) {
+            throw new ValidationError(formatZodError(error));
+        }
+
+        const errorMessage = error && error.message ? error.message : "Erro interno ao processar criação de lote";
+        
+        throw new ValidationError(errorMessage);
+    }
 }
 
 export async function getPasteurizationBatchesController(

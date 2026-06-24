@@ -431,22 +431,11 @@ export default function PasteurizationBatchesPage() {
 
   return (
     <section className="pasteurization-batches">
-      <nav className="br-breadcrumb pasteurization-batches__breadcrumb" aria-label="Breadcrumb">
-        <ol className="crumb-list">
-          <li className="crumb-list__item">
-            <Link className="crumb-link" to="/doacoes">Doações</Link>
-          </li>
-          <li className="crumb-list__item crumb-list__item--active" aria-current="page">
-            <span>Lotes</span>
-          </li>
-        </ol>
-      </nav>
-
       <header className="pasteurization-batches__header">
         <div>
           <h1 className="pasteurization-batches__title">Lotes de Pasteurização</h1>
           <p className="pasteurization-batches__description">
-            Lista dos ciclos de pasteurização cadastrados no modulo de Doações.
+            Lista dos ciclos de pasteurização cadastrados no módulo de Doações.
           </p>
         </div>
         <BrButton icon="plus" primary onClick={() => setIsCreateModalOpen(true)}>
