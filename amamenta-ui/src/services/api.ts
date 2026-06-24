@@ -5,22 +5,26 @@ import {
     clearToken,
 } from "./auth";
 
+const apiBaseURL =
+    import.meta.env.VITE_API_URL ??
+    (import.meta.env.DEV ? "http://localhost:3333" : undefined);
+
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: apiBaseURL,
 });
 
 export async function approvePasteurizationBatch(
     id: string,
     data: { volumeFinalMl: number; generatedUnits: number },
 ): Promise<void> {
-    await api.patch(`/pasteurization-batches/${id}/approve`, data);
+    await api.patch(`/donations/pasteurization-batches/${id}/approve`, data);
 }
 
 export async function rejectPasteurizationBatch(
     id: string,
     data: { reason: string },
 ): Promise<void> {
-    await api.patch(`/pasteurization-batches/${id}/reject`, data);
+    await api.patch(`/donations/pasteurization-batches/${id}/reject`, data);
 }
 
 api.interceptors.request.use((config) => {

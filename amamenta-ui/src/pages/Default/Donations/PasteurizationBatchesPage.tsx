@@ -435,7 +435,7 @@ export default function PasteurizationBatchesPage() {
         <div>
           <h1 className="pasteurization-batches__title">Lotes de Pasteurização</h1>
           <p className="pasteurization-batches__description">
-            Lista dos ciclos de pasteurização cadastrados no módulo de Doações.
+            Lista dos ciclos de pasteurização cadastrados no mdulo de Doações.
           </p>
         </div>
         <BrButton icon="plus" primary onClick={() => setIsCreateModalOpen(true)}>
@@ -504,7 +504,7 @@ export default function PasteurizationBatchesPage() {
                   <p><strong>ID:</strong> {selectedBatch.id}</p>
                   <p><strong>Codigo:</strong> {selectedBatch.batchCode}</p>
                   <p><strong>Data:</strong> {formatDateTime(selectedBatch.pasteurizedAt)}</p>
-                  <p><strong>Status:</strong> {getStatusTag(selectedBatch.microbiologyStatus)}</p>
+                  <div><strong>Status:</strong> {getStatusTag(selectedBatch.microbiologyStatus)}</div>
                   <p><strong>Operador:</strong> {selectedBatch.operatorId}</p>
                   <p><strong>Observacoes:</strong> {selectedBatch.observations ?? "-"}</p>
                 </div>
