@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Bar,
@@ -59,13 +60,6 @@ const emptyOverview: OverviewData = {
   monthlyCollectedVolume: [],
 };
 
-const statusLabels: Record<string, string> = {
-  PENDING: "Pendentes",
-  APPROVED: "Aprovadas",
-  REJECTED: "Rejeitadas",
-  EXPIRED: "Vencidas",
-};
-
 const statusColors: Record<string, string> = {
   PENDING: "#ffcd07",
   APPROVED: "#168821",
@@ -78,6 +72,7 @@ function formatVolume(value: number) {
 }
 
 export default function GeneralViewPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [overview, setOverview] = useState<OverviewData>(emptyOverview);
   const [loading, setLoading] = useState(true);
@@ -92,45 +87,45 @@ export default function GeneralViewPage() {
         const response = await api.get<OverviewResponse>("/overview");
         setOverview(response.data.data);
       } catch {
-        setError("Nao foi possivel carregar a visao geral.");
+        setError(t("generalView.loadError"));
       } finally {
         setLoading(false);
       }
     }
 
     void loadOverview();
-  }, []);
+  }, [t]);
 
   const donationStatusData = useMemo(
     () =>
       ["PENDING", "APPROVED", "REJECTED", "EXPIRED"].map((status) => ({
         status,
-        name: statusLabels[status],
+        name: t(`generalView.donationStatus.${status}`),
         total:
           overview.donationStatusDistribution.find((item) => item.status === status)
             ?.total ?? 0,
       })),
-    [overview.donationStatusDistribution],
+    [overview.donationStatusDistribution, t],
   );
 
   const metrics = [
     {
-      label: "Total de doacoes",
+      label: t("generalView.metrics.totalDonations"),
       value: overview.metrics.totalDonations,
       tone: "info",
     },
     {
-      label: "Dentro da validade",
+      label: t("generalView.metrics.validDonations"),
       value: overview.metrics.validDonations,
       tone: "success",
     },
     {
-      label: "Proximas ao vencimento",
+      label: t("generalView.metrics.expiringSoonDonations"),
       value: overview.metrics.expiringSoonDonations,
       tone: "warning",
     },
     {
-      label: "Volume no mes",
+      label: t("generalView.metrics.periodVolume"),
       value: formatVolume(overview.metrics.periodVolumeMl),
       tone: "primary",
     },
@@ -138,23 +133,23 @@ export default function GeneralViewPage() {
 
   const alerts = [
     {
-      text: `${overview.alerts.expiredDonations} doacoes vencidas aguardando acao`,
+      text: t("generalView.alerts.expiredDonations", { count: overview.alerts.expiredDonations }),
       path: "/doacoes/coletas",
     },
     {
-      text: `${overview.alerts.pendingTriage} coletas pendentes de triagem`,
+      text: t("generalView.alerts.pendingTriage", { count: overview.alerts.pendingTriage }),
       path: "/doacoes/coletas",
     },
     {
-      text: `${overview.alerts.todayVisits} visitas agendadas para hoje`,
+      text: t("generalView.alerts.todayVisits", { count: overview.alerts.todayVisits }),
       path: "/visitas/hoje",
     },
     {
-      text: `${overview.alerts.pendingExams} doadoras com exames pendentes`,
+      text: t("generalView.alerts.pendingExams", { count: overview.alerts.pendingExams }),
       path: "/doadoras/exames-pendentes",
     },
     {
-      text: `${overview.alerts.inactiveRisk} doadoras em risco de inatividade`,
+      text: t("generalView.alerts.inactiveRisk", { count: overview.alerts.inactiveRisk }),
       path: "/doadoras",
     },
   ];
@@ -163,9 +158,9 @@ export default function GeneralViewPage() {
     <section className="general-view">
       <header className="general-view__header">
         <div>
-          <h1 className="general-view__title">Visao Geral</h1>
+          <h1 className="general-view__title">{t("generalView.title")}</h1>
           <p className="general-view__description">
-            Resumo operacional do banco de leite e principais pendencias do dia.
+            {t("generalView.description")}
           </p>
         </div>
       </header>
@@ -186,7 +181,7 @@ export default function GeneralViewPage() {
 
       <div className="general-view__grid">
         <section className="general-view__panel general-view__alerts">
-          <h2>Alertas e pendencias</h2>
+          <h2>{t("generalView.alerts.title")}</h2>
           {alerts.map((alert) => (
             <button
               className="general-view__alert"
@@ -195,13 +190,13 @@ export default function GeneralViewPage() {
               type="button"
             >
               <i aria-hidden="true" className="fas fa-exclamation-triangle" />
-              <span>{loading ? "Carregando alerta..." : alert.text}</span>
+              <span>{loading ? t("generalView.alerts.loading") : alert.text}</span>
             </button>
           ))}
         </section>
 
         <section className="general-view__panel">
-          <h2>Situacao das doacoes</h2>
+          <h2>{t("generalView.charts.donationStatus")}</h2>
           <div className="general-view__donut">
             <ResponsiveContainer height="100%" width="100%">
               <PieChart>
@@ -234,7 +229,7 @@ export default function GeneralViewPage() {
         </section>
 
         <section className="general-view__panel">
-          <h2>Novas doadoras</h2>
+          <h2>{t("generalView.charts.newDonators")}</h2>
           <div className="general-view__chart">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={overview.monthlyNewDonators}>
@@ -249,14 +244,14 @@ export default function GeneralViewPage() {
         </section>
 
         <section className="general-view__panel general-view__panel--wide">
-          <h2>Volume coletado por mes</h2>
+          <h2>{t("generalView.charts.monthlyVolume")}</h2>
           <div className="general-view__chart">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={overview.monthlyCollectedVolume}>
                 <CartesianGrid stroke="#e6e6e6" vertical={false} />
                 <XAxis dataKey="month" tickLine={false} />
                 <YAxis allowDecimals={false} tickFormatter={(value) => `${value} ml`} width={64} />
-                <Tooltip formatter={(value) => [`${value} ml`, "Volume"]} />
+                <Tooltip formatter={(value) => [`${value} ml`, t("generalView.charts.volume")]} />
                 <Bar dataKey="volumeMl" fill="#168821" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

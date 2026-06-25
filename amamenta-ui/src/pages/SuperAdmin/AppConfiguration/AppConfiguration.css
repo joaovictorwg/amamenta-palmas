@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 960px;
+  max-width: 1280px;
 }
 
 .app-configuration__header {
@@ -34,6 +34,18 @@
   padding: 16px;
 }
 
+.app-configuration__panel h2 {
+  color: var(--gray-90, #1b1b1b);
+  font-size: 18px;
+  margin: 0;
+}
+
+.app-configuration__forms {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .app-configuration__form-grid {
   display: grid;
   gap: 16px;
@@ -43,6 +55,19 @@
 .app-configuration__actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.app-configuration__row-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.app-configuration__table {
+  background: var(--pure-0, #fff);
+  border: 1px solid var(--gray-10, #e6e6e6);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .app-configuration__feedback {
@@ -63,6 +88,10 @@
 
 @media (max-width: 768px) {
   .app-configuration__form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-configuration__forms {
     grid-template-columns: 1fr;
   }
 

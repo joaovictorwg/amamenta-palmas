@@ -11,7 +11,7 @@ export async function listUsersController(
   const repository = new DrizzleUserRepository();
   const useCase = new ListUsersUseCase(repository);
 
-  const users = await useCase.execute(request.body as ListUsersInput, request.user);
+  const users = await useCase.execute(request.query as ListUsersInput, request.user);
 
   return reply.send(users);
 }

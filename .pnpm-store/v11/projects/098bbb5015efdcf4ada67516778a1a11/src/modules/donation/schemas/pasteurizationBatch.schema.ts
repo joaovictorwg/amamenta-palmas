@@ -14,20 +14,20 @@ export const createPasteurizationBatchSchema = z.object({
 });
 
 export const approvePasteurizationBatchSchema = z.object({
-    volumeFinalMl: z.number().int().positive().optional(),
-    units: z.array(
-        z.object({
-            volumeMl: z.number().int().positive(),
-        })
-    ).min(1),
+    volumeFinalMl: z.number().int().positive(),
+    generatedUnits: z.number().int().positive(),
+}).superRefine((data, ctx) => {
+    if (data.generatedUnits > data.volumeFinalMl) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["generatedUnits"],
+            message: "generatedUnits must be less than or equal to volumeFinalMl",
+        });
+    }
 });
 
 export const rejectPasteurizationBatchSchema = z.object({
-    units: z.array(
-        z.object({
-            volumeMl: z.number().int().positive(),
-        })
-    ).min(1),
+    reason: z.string().trim().min(1),
 });
 
 export const pasteurizationBatchQuerySchema = z.object({

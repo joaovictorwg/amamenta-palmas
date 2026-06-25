@@ -35,6 +35,20 @@ export class DrizzlePasteurizationBatchRepository implements PasteurizationBatch
         return await query as PasteurizationBatch[];
     }
 
+    async resolvePending(id: string, tenantId: string, status: MicrobiologyStatus, tx?: any): Promise<PasteurizationBatch | null> {
+        const executor = tx ?? db;
+        const [updated] = await executor.update(pasteurizationBatches)
+            .set({ microbiologyStatus: status, updatedAt: new Date() })
+            .where(and(
+                eq(pasteurizationBatches.id, id),
+                eq(pasteurizationBatches.tenantId, tenantId),
+                eq(pasteurizationBatches.microbiologyStatus, MicrobiologyStatus.PENDING),
+            ))
+            .returning();
+
+        return (updated as PasteurizationBatch | undefined) ?? null;
+    }
+
     async update(id: string, tenantId: string, data: Partial<PasteurizationBatch>, tx?: any): Promise<PasteurizationBatch> {
         const executor = tx ?? db;
         const [updated] = await executor.update(pasteurizationBatches)

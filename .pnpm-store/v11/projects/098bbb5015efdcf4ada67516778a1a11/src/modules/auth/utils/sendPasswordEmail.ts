@@ -12,7 +12,7 @@ export async function sendResetPasswordEmail({
   email,
   token,
 }: Params) {
-  const resetUrl = `${env.appBaseUrl}/reset-password?token=${token}`;
+  const resetUrl = `${env.appBaseUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
   await mailProvider.send({
     to: email,

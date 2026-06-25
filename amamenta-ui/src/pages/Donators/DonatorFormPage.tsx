@@ -81,6 +81,21 @@ type DonatorProfileResponse = {
   };
 };
 
+type CepResponse = {
+  cep: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  street: string;
+};
+
+type StaffUser = {
+  id: string;
+  name?: string | null;
+  email: string;
+  role: "admin" | "employee";
+};
+
 const initialFormData: DonatorFormData = {
   registrationNumber: "",
   registeredAt: "",
@@ -230,8 +245,19 @@ export default function DonatorFormPage() {
   const [formData, setFormData] = useState<DonatorFormData>(initialFormData);
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
+  const [staff, setStaff] = useState<StaffUser[]>([]);
+  const [staffLoading, setStaffLoading] = useState(true);
+  const [zipCode, setZipCode] = useState("");
+  const [cepLoading, setCepLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    api.get<StaffUser[]>("/users")
+      .then((response) => setStaff(response.data))
+      .catch(() => setStaff([]))
+      .finally(() => setStaffLoading(false));
+  }, []);
 
   useEffect(() => {
     async function loadDonator() {
@@ -330,6 +356,24 @@ export default function DonatorFormPage() {
   }, [id]);
 
   const pageTitle = isEditing ? "Editar doadora" : "Cadastro de doadora";
+  const registeredByOptions = useMemo(() => {
+    const options = staff.map((user) => ({
+      label: user.name ? `${user.name} (${user.email})` : user.email,
+      value: user.name ?? user.email,
+    }));
+
+    if (
+      formData.registeredBy &&
+      !options.some((option) => option.value === formData.registeredBy)
+    ) {
+      options.unshift({
+        label: formData.registeredBy,
+        value: formData.registeredBy,
+      });
+    }
+
+    return options;
+  }, [formData.registeredBy, staff]);
 
   const requiredFieldsCompleted = useMemo(
     () =>
@@ -379,6 +423,34 @@ export default function DonatorFormPage() {
       ...current,
       [field]: value,
     }));
+  }
+
+  async function loadAddressByCep(value: string) {
+    const digits = value.replace(/\D/g, "");
+
+    setZipCode(digits);
+    if (digits.length !== 8) return;
+
+    setCepLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${digits}`);
+      if (!response.ok) throw new Error("CEP not found");
+      const data = (await response.json()) as CepResponse;
+
+      setFormData((current) => ({
+        ...current,
+        address: data.street,
+        neighborhood: data.neighborhood,
+        city: data.city,
+        state: data.state,
+      }));
+    } catch {
+      setError("Nao foi possivel buscar o CEP.");
+    } finally {
+      setCepLoading(false);
+    }
   }
 
   function buildDonatorPayload() {
@@ -633,7 +705,7 @@ export default function DonatorFormPage() {
                 submitted && !formData.phone ? "Informe o telefone." : ""
               }
               label={requiredLabel("Telefone")}
-              mask="(99) 99999-9999"
+              mask="(##) #####-####"
               onChange={(event) =>
                 updateField("phone", event.currentTarget.value)
               }
@@ -663,11 +735,16 @@ export default function DonatorFormPage() {
               }
               value={formData.babyName}
             />
-            <BrInput
+            <BrSelect
+              clearable
+              emptyOptionsMessage="Nenhum funcionário encontrado"
+              isLoading={staffLoading}
               label="Cadastrada por"
-              onChange={(event) =>
-                updateField("registeredBy", event.currentTarget.value)
-              }
+              onChange={(value) => updateField("registeredBy", String(value))}
+              onClear={() => updateField("registeredBy", "")}
+              onSearchChange={() => undefined}
+              options={registeredByOptions}
+              placeholder="Busque um funcionário"
               value={formData.registeredBy}
             />
             <BrSelect
@@ -715,6 +792,14 @@ export default function DonatorFormPage() {
 
         <BrWizard.Panel title="Endereco e coleta">
           <div className="donator-form__grid">
+            <BrInput
+              feedbackText={cepLoading ? "Buscando CEP..." : undefined}
+              label="CEP"
+              maxLength={8}
+              onChange={(event) => void loadAddressByCep(event.currentTarget.value)}
+              placeholder="77000000"
+              value={zipCode}
+            />
             <BrInput
               feedbackText={
                 submitted && !formData.address ? "Informe o endereco." : ""

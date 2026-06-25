@@ -9,6 +9,20 @@ export const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 });
 
+export async function approvePasteurizationBatch(
+    id: string,
+    data: { volumeFinalMl: number; generatedUnits: number },
+): Promise<void> {
+    await api.patch(`/donations/pasteurization-batches/${id}/approve`, data);
+}
+
+export async function rejectPasteurizationBatch(
+    id: string,
+    data: { reason: string },
+): Promise<void> {
+    await api.patch(`/donations/pasteurization-batches/${id}/reject`, data);
+}
+
 api.interceptors.request.use((config) => {
     const token = getToken();
 

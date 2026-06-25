@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   BrButton,
@@ -68,12 +69,6 @@ const emptyOverview: DonatorOverview = {
   latestRegistrations: [],
 };
 
-const statusLabels: Record<DonatorStatus, string> = {
-  ACTIVE: "Ativas",
-  INACTIVE: "Inativas",
-  PENDING_EXAMS: "Pendentes",
-};
-
 const statusColors: Record<DonatorStatus, string> = {
   ACTIVE: "#168821",
   INACTIVE: "#888888",
@@ -94,19 +89,20 @@ function formatPhone(value: string) {
   return value;
 }
 
-function getStatusTag(status: DonatorStatus) {
+function getStatusTag(status: DonatorStatus, t: (key: string) => string) {
   if (status === "ACTIVE") {
-    return <BrTag color="success" value="Ativa" />;
+    return <BrTag color="success" value={t("donatorsOverview.status.active")} />;
   }
 
   if (status === "PENDING_EXAMS") {
-    return <BrTag color="warning" value="Pendente Exames" />;
+    return <BrTag color="warning" value={t("donatorsOverview.status.pendingExams")} />;
   }
 
-  return <BrTag color="danger" value="Inativa" />;
+  return <BrTag color="danger" value={t("donatorsOverview.status.inactive")} />;
 }
 
 export default function DonatorsOverviewPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [overview, setOverview] = useState<DonatorOverview>(emptyOverview);
   const [loading, setLoading] = useState(true);
@@ -121,24 +117,24 @@ export default function DonatorsOverviewPage() {
         const response = await api.get<DonatorOverviewResponse>("/donators/overview");
         setOverview(response.data.data);
       } catch {
-        setError("Nao foi possivel carregar a visao geral de doadoras.");
+        setError(t("donatorsOverview.loadError"));
       } finally {
         setLoading(false);
       }
     }
 
     void loadOverview();
-  }, []);
+  }, [t]);
 
   const statusChartData = useMemo(
     () =>
       (["ACTIVE", "INACTIVE", "PENDING_EXAMS"] as DonatorStatus[]).map((status) => ({
-        name: statusLabels[status],
+        name: t(`donatorsOverview.status.${status}`),
         status,
         total:
           overview.statusDistribution.find((item) => item.status === status)?.total ?? 0,
       })),
-    [overview.statusDistribution],
+    [overview.statusDistribution, t],
   );
 
   const rows = useMemo(
@@ -154,30 +150,30 @@ export default function DonatorsOverviewPage() {
     () => [
       {
         key: "name",
-        title: "Nome",
+        title: t("common.name"),
         width: "38%",
         boldHeading: true,
       },
       {
         key: "phone",
-        title: "Telefone",
+        title: t("donatorsOverview.table.phone"),
         width: "24%",
         render: (value) => formatPhone(String(value)),
       },
       {
         key: "status",
-        title: "Status",
+        title: t("common.status"),
         width: "20%",
-        render: (value) => getStatusTag(value),
+        render: (value) => getStatusTag(value, t),
       },
       {
         key: "actions",
-        title: "Acoes",
+        title: t("common.actions"),
         align: "right",
         width: "18%",
         render: (_value, row) => (
           <BrButton
-            aria-label={`Ver perfil de ${row.name}`}
+            aria-label={t("donatorsOverview.table.viewProfile", { name: row.name })}
             circle
             icon="eye"
             onClick={() => navigate(`/doadoras/${row.id}`)}
@@ -186,27 +182,27 @@ export default function DonatorsOverviewPage() {
         ),
       },
     ],
-    [navigate],
+    [navigate, t],
   );
 
   const metrics = [
     {
-      label: "Doadoras ativas",
+      label: t("donatorsOverview.metrics.activeDonators"),
       value: overview.metrics.activeDonators,
       tone: "success",
     },
     {
-      label: "Aguardando exames",
+      label: t("donatorsOverview.metrics.pendingExams"),
       value: overview.metrics.pendingExams,
       tone: "warning",
     },
     {
-      label: "Risco de inatividade",
+      label: t("donatorsOverview.metrics.inactivityRisk"),
       value: overview.metrics.inactivityRisk,
       tone: "danger",
     },
     {
-      label: "Visitas pendentes",
+      label: t("donatorsOverview.metrics.pendingVisits"),
       value: overview.metrics.pendingVisits,
       tone: "info",
     },
@@ -214,17 +210,23 @@ export default function DonatorsOverviewPage() {
 
   const alerts = [
     {
-      text: `${overview.alerts.examsExpiringThisMonth} doadoras com exames vencendo este mes`,
+      text: t("donatorsOverview.alerts.examsExpiring", {
+        count: overview.alerts.examsExpiringThisMonth,
+      }),
       icon: "exclamation-triangle",
       onClick: () => navigate("/doadoras/exames-pendentes"),
     },
     {
-      text: `${overview.alerts.inactivatedThisWeek} doadoras inativadas nesta semana`,
+      text: t("donatorsOverview.alerts.inactivatedThisWeek", {
+        count: overview.alerts.inactivatedThisWeek,
+      }),
       icon: "exclamation-circle",
       onClick: () => navigate("/doadoras/lista"),
     },
     {
-      text: `${overview.alerts.newWhatsappRegistrations} novos cadastros via WhatsApp`,
+      text: t("donatorsOverview.alerts.newWhatsapp", {
+        count: overview.alerts.newWhatsappRegistrations,
+      }),
       icon: "comment",
       onClick: () => navigate("/doadoras/lista"),
     },
@@ -234,9 +236,9 @@ export default function DonatorsOverviewPage() {
     <section className="donators-overview">
       <header className="donators-overview__header">
         <div>
-          <h1 className="donators-overview__title">Visao Geral de Doadoras</h1>
+          <h1 className="donators-overview__title">{t("donatorsOverview.title")}</h1>
           <p className="donators-overview__description">
-            Acompanhe cadastro, triagem e sinais de risco da base de doadoras.
+            {t("donatorsOverview.description")}
           </p>
         </div>
 
@@ -245,7 +247,7 @@ export default function DonatorsOverviewPage() {
           onClick={() => navigate("/doadoras/cadastro")}
           primary
         >
-          Criar doadora
+          {t("donatorsOverview.createDonator")}
         </BrButton>
       </header>
 
@@ -265,7 +267,7 @@ export default function DonatorsOverviewPage() {
 
       <div className="donators-overview__main">
         <section className="donators-overview__panel donators-overview__alerts">
-          <h2>Acoes urgentes</h2>
+          <h2>{t("donatorsOverview.alerts.title")}</h2>
           {alerts.map((alert) => (
             <button
               className="donators-overview__alert"
@@ -274,13 +276,13 @@ export default function DonatorsOverviewPage() {
               type="button"
             >
               <i aria-hidden="true" className={`fas fa-${alert.icon}`} />
-              <span>{loading ? "Carregando alerta..." : alert.text}</span>
+              <span>{loading ? t("donatorsOverview.alerts.loading") : alert.text}</span>
             </button>
           ))}
         </section>
 
         <section className="donators-overview__panel">
-          <h2>Evolucao de novas doadoras</h2>
+          <h2>{t("donatorsOverview.charts.newDonators")}</h2>
           <div className="donators-overview__chart">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={overview.monthlyNewDonators}>
@@ -295,7 +297,7 @@ export default function DonatorsOverviewPage() {
         </section>
 
         <section className="donators-overview__panel">
-          <h2>Saude da base</h2>
+          <h2>{t("donatorsOverview.charts.baseHealth")}</h2>
           <div className="donators-overview__donut">
             <ResponsiveContainer height="100%" width="100%">
               <PieChart>
@@ -333,9 +335,9 @@ export default function DonatorsOverviewPage() {
           columns={columns}
           data={rows}
           density="small"
-          emptyContent="Nenhum cadastro recente encontrado."
+          emptyContent={t("donatorsOverview.table.empty")}
           isLoading={loading}
-          title="Ultimos cadastros"
+          title={t("donatorsOverview.table.title")}
         />
       </div>
     </section>

@@ -38,16 +38,25 @@ export async function getPasteurizedMilkController(
     const query = request.query as {
         stockStatus?: PasteurizedMilkStockStatus;
         batchId?: string;
+        page?: number;
+        limit?: number;
     };
 
     const tenantId = getRequestTenantId(request);
     const repository = new DrizzlePasteurizedMilkUnitRepository();
-    const data = await repository.findMany({
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const { data, total } = await repository.findMany({
         stockStatus: query.stockStatus,
         batchId: query.batchId,
+        page,
+        limit,
     }, tenantId);
 
-    return reply.send({ data });
+    return reply.send({
+        data,
+        meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
+    });
 }
 
 export async function getPasteurizedMilkByIdController(
@@ -68,7 +77,7 @@ export async function distributePasteurizedMilkController(
 ) {
     const { id } = request.params;
     const tenantId = getRequestTenantId(request);
-    const { recipientIdentifier } = request.body as { recipientIdentifier?: string | null };
+    const { recipientIdentifier } = request.body as { recipientIdentifier: string };
 
     const useCase = new DistributePasteurizedMilkUseCase(new DrizzlePasteurizedMilkUnitRepository());
     const data = await useCase.execute({ tenantId, id, recipientIdentifier });

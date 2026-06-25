@@ -7,7 +7,10 @@ export interface PasteurizedMilkUnitRepository {
     findMany(params: {
         stockStatus?: PasteurizedMilkStockStatus;
         batchId?: string;
-    }, tenantId: string, tx?: any): Promise<PasteurizedMilkUnit[]>;
+        page?: number;
+        limit?: number;
+    }, tenantId: string, tx?: any): Promise<{ data: PasteurizedMilkUnit[]; total: number }>;
+    distribute(id: string, tenantId: string, recipientIdentifier: string, tx?: any): Promise<PasteurizedMilkUnit | null>;
     updateStatus(id: string, tenantId: string, stockStatus: PasteurizedMilkStockStatus, tx?: any, recipientIdentifier?: string | null): Promise<PasteurizedMilkUnit>;
     update(id: string, tenantId: string, data: Partial<Omit<PasteurizedMilkUnit, "id" | "createdAt" | "updatedAt">>, tx?: any): Promise<PasteurizedMilkUnit>;
 }

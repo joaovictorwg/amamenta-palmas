@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BrButton,
   BrInput,
@@ -15,6 +16,7 @@ import "./VisitsPage.css";
 
 type VisitType = "DELIVERY" | "COLLECTION";
 type VisitStatus = "SCHEDULED" | "COMPLETED" | "CANCELED";
+type VisitsPageMode = "schedule" | "today" | "history";
 
 type Visit = {
   id: string;
@@ -60,19 +62,11 @@ type CepResponse = {
   street: string;
 };
 
-const statusTabs: { key: VisitStatus; label: string }[] = [
-  { key: "SCHEDULED", label: "Agendadas" },
-  { key: "COMPLETED", label: "Realizadas" },
-  { key: "CANCELED", label: "Canceladas" },
-];
-
-const typeOptions = [
-  { label: "Entrega de kit", value: "DELIVERY" },
-  { label: "Coleta", value: "COLLECTION" },
-];
-
 function todayInputValue() {
-  return new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
 }
 
 function formatPhone(value?: string | null) {
@@ -83,10 +77,10 @@ function formatPhone(value?: string | null) {
   return value;
 }
 
-function formatDateTime(value?: string | null) {
-  if (!value) return "Sem data";
+function formatDateTime(value: string | null | undefined, emptyLabel: string) {
+  if (!value) return emptyLabel;
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Sem data";
+  if (Number.isNaN(date.getTime())) return emptyLabel;
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "short",
     timeStyle: "short",
@@ -102,20 +96,23 @@ function toDateTimeLocal(value?: string | null) {
     .slice(0, 16);
 }
 
-function getTypeLabel(type: VisitType) {
-  return type === "DELIVERY" ? "Entrega" : "Coleta";
+function getTypeLabel(type: VisitType, t: (key: string) => string) {
+  return type === "DELIVERY" ? t("visits.type.deliveryShort") : t("visits.type.collection");
 }
 
-function getStatusTag(status: VisitStatus) {
-  if (status === "COMPLETED") return <BrTag color="success" value="Realizada" />;
-  if (status === "CANCELED") return <BrTag color="danger" value="Cancelada" />;
-  return <BrTag color="warning" value="Agendada" />;
+function getStatusTag(status: VisitStatus, t: (key: string) => string) {
+  if (status === "COMPLETED") return <BrTag color="success" value={t("visits.status.completed")} />;
+  if (status === "CANCELED") return <BrTag color="danger" value={t("visits.status.canceled")} />;
+  return <BrTag color="warning" value={t("visits.status.scheduled")} />;
 }
 
-export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean }) {
+export default function VisitsPage({ mode = "schedule" }: { mode?: VisitsPageMode }) {
+  const { t } = useTranslation();
   const [visits, setVisits] = useState<Visit[]>([]);
-  const [status, setStatus] = useState<VisitStatus>("SCHEDULED");
-  const [date, setDate] = useState(todayOnly ? todayInputValue() : "");
+  const [status, setStatus] = useState<VisitStatus>(
+    mode === "history" ? "COMPLETED" : "SCHEDULED",
+  );
+  const [date, setDate] = useState(mode === "today" ? todayInputValue() : "");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
@@ -140,7 +137,7 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
       setVisits(response.data.data);
       setTotal(response.data.meta.total);
     } catch {
-      setError("Nao foi possivel carregar as visitas.");
+      setError(t("visits.loadError"));
     } finally {
       setLoading(false);
     }
@@ -148,7 +145,7 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
 
   useEffect(() => {
     void loadVisits();
-  }, [status, page, limit]);
+  }, [status, page, limit, t]);
 
   function handleFilter() {
     if (page === 1) {
@@ -167,20 +164,20 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
     () => [
       {
         key: "donatorName",
-        title: "Doadora",
+        title: t("visits.table.donator"),
         width: "22%",
         boldHeading: true,
         render: (value, row) => String(value ?? row.donatorId),
       },
       {
         key: "donatorPhone",
-        title: "Telefone",
+        title: t("donatorsOverview.table.phone"),
         width: "14%",
         render: (value) => formatPhone(String(value ?? "")),
       },
       {
         key: "donatorAddress",
-        title: "Endereco",
+        title: t("visits.table.address"),
         width: "24%",
         render: (_value, row) =>
           [
@@ -194,37 +191,37 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
       },
       {
         key: "type",
-        title: "Tipo",
+        title: t("visits.table.type"),
         width: "10%",
-        render: (value) => getTypeLabel(value as VisitType),
+        render: (value) => getTypeLabel(value as VisitType, t),
       },
       {
         key: "scheduledAt",
-        title: "Data/Hora",
+        title: t("visits.table.dateTime"),
         width: "14%",
-        render: (value) => formatDateTime(String(value ?? "")),
+        render: (value) => formatDateTime(String(value ?? ""), t("visits.noDate")),
       },
       {
         key: "needsKit",
-        title: "Kit",
+        title: t("visits.table.kit"),
         width: "8%",
-        render: (value) => (value ? "Sim" : "Nao"),
+        render: (value) => (value ? t("common.yes") : t("common.no")),
       },
       {
         key: "status",
-        title: "Status",
+        title: t("common.status"),
         width: "10%",
-        render: (value) => getStatusTag(value as VisitStatus),
+        render: (value) => getStatusTag(value as VisitStatus, t),
       },
       {
         key: "id",
-        title: "Acoes",
+        title: t("common.actions"),
         align: "right",
         width: "12%",
         render: (_value, row) => (
           <div className="visits-page__row-actions">
             <BrButton
-              aria-label={`Editar visita de ${row.donatorName ?? "doadora"}`}
+              aria-label={t("visits.actions.editVisit", { name: row.donatorName ?? t("visits.table.donatorFallback") })}
               circle
               icon="edit"
               onClick={() => {
@@ -236,14 +233,14 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
             {row.status === "SCHEDULED" && (
               <>
                 <BrButton
-                  aria-label="Marcar como realizada"
+                  aria-label={t("visits.actions.markCompleted")}
                   circle
                   icon="check"
                   onClick={() => void updateStatus(row, "COMPLETED")}
                   size="small"
                 />
                 <BrButton
-                  aria-label="Cancelar visita"
+                  aria-label={t("visits.actions.cancelVisit")}
                   circle
                   color="danger"
                   icon="ban"
@@ -256,16 +253,29 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
         ),
       },
     ],
-    [],
+    [t],
   );
+
+  const allStatusTabs: { key: VisitStatus; label: string }[] = [
+    { key: "SCHEDULED", label: t("visits.tabs.scheduled") },
+    { key: "COMPLETED", label: t("visits.tabs.completed") },
+    { key: "CANCELED", label: t("visits.tabs.canceled") },
+  ];
+  const statusTabs = allStatusTabs.filter(
+    (tab) => mode !== "history" || tab.key !== "SCHEDULED",
+  );
+
+  const title = t(`visits.pages.${mode}.title`);
+  const description = t(`visits.pages.${mode}.description`);
+  const tableTitle = t(`visits.pages.${mode}.tableTitle`);
 
   return (
     <section className="visits-page">
       <header className="visits-page__header">
         <div>
-          <h1 className="visits-page__title">Visitas</h1>
+          <h1 className="visits-page__title">{title}</h1>
           <p className="visits-page__description">
-            Agende entregas de kit, coletas domiciliares e acompanhe a rota da equipe.
+            {description}
           </p>
         </div>
 
@@ -277,7 +287,7 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
           }}
           primary
         >
-          Nova visita
+          {t("visits.newVisit")}
         </BrButton>
       </header>
 
@@ -299,22 +309,24 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
         ))}
       </div>
 
-      <div className="visits-page__filters">
-        <BrInput
-          label="Data da rota"
-          onChange={(event) => setDate(event.currentTarget.value)}
-          type="date"
-          value={date}
-        />
-        <div className="visits-page__filter-actions">
-          <BrButton onClick={() => setDate("")} secondary>
-            Limpar
-          </BrButton>
-          <BrButton onClick={handleFilter} primary>
-            Filtrar
-          </BrButton>
+      {mode !== "today" && (
+        <div className="visits-page__filters">
+          <BrInput
+            label={t("visits.filters.routeDate")}
+            onChange={(event) => setDate(event.currentTarget.value)}
+            type="date"
+            value={date}
+          />
+          <div className="visits-page__filter-actions">
+            <BrButton onClick={() => setDate("")} secondary>
+              {t("visits.filters.clear")}
+            </BrButton>
+            <BrButton onClick={handleFilter} primary>
+              {t("visits.filters.apply")}
+            </BrButton>
+          </div>
         </div>
-      </div>
+      )}
 
       {error && <div className="visits-page__error">{error}</div>}
 
@@ -323,19 +335,19 @@ export default function VisitsPage({ todayOnly = false }: { todayOnly?: boolean 
           columns={columns}
           data={visits}
           density="small"
-          emptyContent="Nenhuma visita encontrada."
+          emptyContent={t("visits.table.empty")}
           isLoading={loading}
           paginationProps={{
             page,
             perPage: limit,
             total,
             showTotalizers: true,
-            itemTitleSingular: "visita",
-            itemTitlePlural: "visitas",
+            itemTitleSingular: t("visits.pagination.singular"),
+            itemTitlePlural: t("visits.pagination.plural"),
             onPageChange: setPage,
             onPerPageChange: setLimit,
           }}
-          title="Agenda de visitas"
+          title={tableTitle}
         />
       </div>
 
@@ -363,6 +375,7 @@ function VisitModal({
   onSaved: () => void;
   visit: Visit | null;
 }) {
+  const { t } = useTranslation();
   const [donatorQuery, setDonatorQuery] = useState("");
   const [donatorResults, setDonatorResults] = useState<Donator[]>([]);
   const [donator, setDonator] = useState<Donator | null>(null);
@@ -379,6 +392,10 @@ function VisitModal({
   const [error, setError] = useState<string | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const isEditing = Boolean(visit);
+  const typeOptions = [
+    { label: t("visits.type.delivery"), value: "DELIVERY" },
+    { label: t("visits.type.collection"), value: "COLLECTION" },
+  ];
 
   useEffect(() => {
     if (!isOpen) return;
@@ -416,7 +433,7 @@ function VisitModal({
 
   async function handleSubmit() {
     if (!isEditing && !donator) {
-      setError("Selecione a doadora.");
+      setError(t("visits.form.selectDonator"));
       return;
     }
 
@@ -441,7 +458,7 @@ function VisitModal({
       }
       onSaved();
     } catch {
-      setError("Nao foi possivel salvar a visita.");
+      setError(t("visits.form.saveError"));
     }
   }
 
@@ -456,7 +473,7 @@ function VisitModal({
 
     try {
       const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${digits}`);
-      if (!response.ok) throw new Error("CEP nao encontrado");
+      if (!response.ok) throw new Error("CEP not found");
       const data = (await response.json()) as CepResponse;
 
       setAddress(data.street);
@@ -464,7 +481,7 @@ function VisitModal({
       setCity(data.city);
       setState(data.state);
     } catch {
-      setError("Nao foi possivel buscar o CEP.");
+      setError(t("visits.form.cepError"));
     } finally {
       setCepLoading(false);
     }
@@ -474,22 +491,22 @@ function VisitModal({
     <BrModal
       isOpen={isOpen}
       onClose={onClose}
-      primaryAction={{ label: "Salvar", action: () => void handleSubmit() }}
-      secondaryAction={{ label: "Cancelar", action: onClose }}
+      primaryAction={{ label: t("common.save"), action: () => void handleSubmit() }}
+      secondaryAction={{ label: t("common.cancel"), action: onClose }}
       showClose
-      title={visit ? "Editar visita" : "Nova visita"}
+      title={visit ? t("visits.form.editTitle") : t("visits.form.newTitle")}
     >
       <div className="visits-page__form">
         {!isEditing && (
           <div className="visits-page__autocomplete">
             <BrInput
               feedbackText={error ?? undefined}
-              label="Doadora"
+              label={t("visits.table.donator")}
               onChange={(event) => {
                 setDonatorQuery(event.currentTarget.value);
                 setDonator(null);
               }}
-              placeholder="Buscar por nome"
+              placeholder={t("visits.form.searchByName")}
               status={error ? "danger" : undefined}
               value={donatorQuery}
             />
@@ -513,7 +530,7 @@ function VisitModal({
         )}
 
         <BrSelect
-          label="Tipo"
+          label={t("visits.table.type")}
           onChange={(value) => {
             const nextType = String(value) as VisitType;
             setType(nextType);
@@ -523,44 +540,44 @@ function VisitModal({
           value={type}
         />
         <BrInput
-          label="Data e horario"
+          label={t("visits.form.dateTime")}
           onChange={(event) => setScheduledAt(event.currentTarget.value)}
           type="datetime-local"
           value={scheduledAt}
         />
         <div className="visits-page__address-grid">
           <BrInput
-            feedbackText={cepLoading ? "Buscando CEP..." : undefined}
-            label="CEP"
+            feedbackText={cepLoading ? t("visits.form.searchingCep") : undefined}
+            label={t("visits.form.cep")}
             maxLength={8}
             onChange={(event) => void loadAddressByCep(event.currentTarget.value)}
             placeholder="77000000"
             value={zipCode}
           />
           <BrInput
-            label="Numero ou lote"
+            label={t("visits.form.numberOrLot")}
             onChange={(event) => setAddressNumber(event.currentTarget.value)}
             value={addressNumber}
           />
         </div>
         <BrInput
-          label="Endereco"
+          label={t("visits.table.address")}
           onChange={(event) => setAddress(event.currentTarget.value)}
           value={address}
         />
         <div className="visits-page__address-grid">
           <BrInput
-            label="Bairro"
+            label={t("visits.form.neighborhood")}
             onChange={(event) => setNeighborhood(event.currentTarget.value)}
             value={neighborhood}
           />
           <BrInput
-            label="Cidade"
+            label={t("visits.form.city")}
             onChange={(event) => setCity(event.currentTarget.value)}
             value={city}
           />
           <BrInput
-            label="UF"
+            label={t("visits.form.uf")}
             maxLength={2}
             onChange={(event) => setState(event.currentTarget.value.toUpperCase())}
             value={state}
@@ -572,10 +589,10 @@ function VisitModal({
             onChange={(event) => setNeedsKit(event.currentTarget.checked)}
             type="checkbox"
           />
-          Levar kit de coleta
+          {t("visits.form.needsKit")}
         </label>
         <BrInput
-          label="Observacoes"
+          label={t("visits.form.observations")}
           onChange={(event) => setObservations(event.currentTarget.value)}
           value={observations}
         />

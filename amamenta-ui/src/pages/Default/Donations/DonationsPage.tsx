@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Bar,
@@ -67,23 +68,10 @@ const emptyOverview: DonationOverview = {
   monthlyPasteurizedVolume: [],
 };
 
-const triageLabels: Record<string, string> = {
-  PENDING: "Pendente",
-  APPROVED: "Aprovado",
-  REJECTED: "Rejeitado",
-};
-
 const triageColors: Record<string, string> = {
   PENDING: "#ffcd07",
   APPROVED: "#168821",
   REJECTED: "#e52207",
-};
-
-const stockLabels: Record<string, string> = {
-  AVAILABLE: "Disponivel",
-  DISTRIBUTED: "Distribuido",
-  EXPIRED: "Vencido",
-  DISCARDED: "Descartado",
 };
 
 const stockColors: Record<string, string> = {
@@ -98,6 +86,7 @@ function formatVolume(value: number) {
 }
 
 export default function DonationsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [overview, setOverview] = useState<DonationOverview>(emptyOverview);
   const [loading, setLoading] = useState(true);
@@ -114,32 +103,32 @@ export default function DonationsPage() {
         );
         setOverview(response.data.data);
       } catch {
-        setError("Nao foi possivel carregar a visao geral de doacoes.");
+        setError(t("donationsOverview.loadError"));
       } finally {
         setLoading(false);
       }
     }
 
     void loadOverview();
-  }, []);
+  }, [t]);
 
   const triageData = useMemo(
     () =>
       ["PENDING", "APPROVED", "REJECTED"].map((status) => ({
         status,
-        name: triageLabels[status],
+        name: t(`donationsOverview.triageStatus.${status}`),
         total:
           overview.rawMilkTriageDistribution.find((item) => item.status === status)
             ?.total ?? 0,
       })),
-    [overview.rawMilkTriageDistribution],
+    [overview.rawMilkTriageDistribution, t],
   );
 
   const stockData = useMemo(
     () =>
       ["AVAILABLE", "DISTRIBUTED", "EXPIRED", "DISCARDED"].map((status) => ({
         status,
-        name: stockLabels[status],
+        name: t(`donationsOverview.stockStatus.${status}`),
         total:
           overview.pasteurizedStockDistribution.find((item) => item.status === status)
             ?.total ?? 0,
@@ -147,27 +136,27 @@ export default function DonationsPage() {
           overview.pasteurizedStockDistribution.find((item) => item.status === status)
             ?.volumeMl ?? 0,
       })),
-    [overview.pasteurizedStockDistribution],
+    [overview.pasteurizedStockDistribution, t],
   );
 
   const metrics = [
     {
-      label: "Coletas pendentes de triagem",
+      label: t("donationsOverview.metrics.pendingTriage"),
       value: overview.metrics.rawMilkPendingTriage,
       tone: "warning",
     },
     {
-      label: "Aguardando lote",
+      label: t("donationsOverview.metrics.waitingBatch"),
       value: overview.metrics.rawMilkWaitingBatch,
       tone: "primary",
     },
     {
-      label: "Microbiologia pendente",
+      label: t("donationsOverview.metrics.pendingMicrobiology"),
       value: overview.metrics.pasteurizationPending,
       tone: "danger",
     },
     {
-      label: "Estoque disponivel",
+      label: t("donationsOverview.metrics.availableStock"),
       value: formatVolume(overview.metrics.availableStockMl),
       tone: "success",
     },
@@ -175,23 +164,23 @@ export default function DonationsPage() {
 
   const alerts = [
     {
-      text: `${overview.alerts.rawMilkExpired} coletas de leite cru vencidas`,
+      text: t("donationsOverview.alerts.rawMilkExpired", { count: overview.alerts.rawMilkExpired }),
       path: "/doacoes/coletas",
     },
     {
-      text: `${overview.alerts.rawMilkExpiringSoon} coletas vencendo em ate 3 dias`,
+      text: t("donationsOverview.alerts.rawMilkExpiringSoon", { count: overview.alerts.rawMilkExpiringSoon }),
       path: "/doacoes/coletas",
     },
     {
-      text: `${overview.alerts.rejectedTriage} coletas rejeitadas na triagem`,
+      text: t("donationsOverview.alerts.rejectedTriage", { count: overview.alerts.rejectedTriage }),
       path: "/doacoes/coletas",
     },
     {
-      text: `${overview.alerts.pasteurizedExpiringSoon} unidades pasteurizadas vencendo em ate 30 dias`,
+      text: t("donationsOverview.alerts.pasteurizedExpiringSoon", { count: overview.alerts.pasteurizedExpiringSoon }),
       path: "/doacoes/estoque",
     },
     {
-      text: `${overview.alerts.pasteurizedExpired} unidades pasteurizadas vencidas em estoque`,
+      text: t("donationsOverview.alerts.pasteurizedExpired", { count: overview.alerts.pasteurizedExpired }),
       path: "/doacoes/estoque",
     },
   ];
@@ -200,9 +189,9 @@ export default function DonationsPage() {
     <section className="donations-overview">
       <header className="donations-overview__header">
         <div>
-          <h1 className="donations-overview__title">Visao Geral de Doacoes</h1>
+          <h1 className="donations-overview__title">{t("donationsOverview.title")}</h1>
           <p className="donations-overview__description">
-            Gargalos, validade e estoque do fluxo de leite cru e pasteurizado.
+            {t("donationsOverview.description")}
           </p>
         </div>
       </header>
@@ -223,7 +212,7 @@ export default function DonationsPage() {
 
       <div className="donations-overview__grid">
         <section className="donations-overview__panel donations-overview__alerts">
-          <h2>Alertas criticos</h2>
+          <h2>{t("donationsOverview.alerts.title")}</h2>
           {alerts.map((alert) => (
             <button
               className="donations-overview__alert"
@@ -232,13 +221,13 @@ export default function DonationsPage() {
               type="button"
             >
               <i aria-hidden="true" className="fas fa-exclamation-triangle" />
-              <span>{loading ? "Carregando alerta..." : alert.text}</span>
+              <span>{loading ? t("donationsOverview.alerts.loading") : alert.text}</span>
             </button>
           ))}
         </section>
 
         <section className="donations-overview__panel">
-          <h2>Triagem do leite cru</h2>
+          <h2>{t("donationsOverview.charts.rawMilkTriage")}</h2>
           <DonutChart
             colors={triageColors}
             data={triageData}
@@ -246,7 +235,7 @@ export default function DonationsPage() {
         </section>
 
         <section className="donations-overview__panel">
-          <h2>Estoque pasteurizado</h2>
+          <h2>{t("donationsOverview.charts.pasteurizedStock")}</h2>
           <DonutChart
             colors={stockColors}
             data={stockData}
@@ -254,7 +243,7 @@ export default function DonationsPage() {
         </section>
 
         <section className="donations-overview__panel donations-overview__panel--wide">
-          <h2>Volume coletado x pasteurizado</h2>
+          <h2>{t("donationsOverview.charts.collectedVsPasteurized")}</h2>
           <div className="donations-overview__chart">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={overview.monthlyCollectedVolume.map((item) => ({
@@ -268,8 +257,8 @@ export default function DonationsPage() {
                 <XAxis dataKey="month" tickLine={false} />
                 <YAxis allowDecimals={false} tickFormatter={(value) => `${value} ml`} width={64} />
                 <Tooltip />
-                <Bar dataKey="volumeMl" fill="#1351b4" name="Coletado" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pasteurizedMl" fill="#168821" name="Pasteurizado" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="volumeMl" fill="#1351b4" name={t("donationsOverview.charts.collected")} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="pasteurizedMl" fill="#168821" name={t("donationsOverview.charts.pasteurized")} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
