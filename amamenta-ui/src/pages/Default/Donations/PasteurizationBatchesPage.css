@@ -1,0 +1,152 @@
+.pasteurization-batches {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem 0;
+}
+
+.pasteurization-batches__breadcrumb .crumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pasteurization-batches__breadcrumb .crumb-list__item {
+  color: #555;
+  font-size: 0.9375rem;
+}
+
+.pasteurization-batches__breadcrumb .crumb-list__item--active {
+  color: #1f1f1f;
+  font-weight: 600;
+}
+
+.crumb-link {
+  color: #1351b4;
+  text-decoration: none;
+}
+
+.crumb-link:hover {
+  text-decoration: underline;
+}
+
+.pasteurization-batches__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pasteurization-batches__title {
+  margin: 0;
+  font-size: 2rem;
+  color: #1f1f1f;
+}
+
+.pasteurization-batches__description {
+  margin: 0.35rem 0 0;
+  color: #555;
+}
+
+.pasteurization-batches__filters,
+.pasteurization-batches__table,
+.pasteurization-batches__error,
+.pasteurization-batches__message {
+  width: 100%;
+}
+
+.pasteurization-batches__error,
+.pasteurization-batches__message {
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+}
+
+.pasteurization-batches__error {
+  background: #fbeaea;
+  color: #a31515;
+  border: 1px solid #efb8b8;
+}
+
+.pasteurization-batches__message {
+  background: #eef8ef;
+  color: #135e13;
+  border: 1px solid #b9e0bc;
+}
+
+.pasteurization-batches__cell-id {
+  word-break: break-all;
+}
+
+.pasteurization-batches__modal {
+  display: grid;
+  gap: 1rem;
+}
+
+.pasteurization-batches__details,
+.pasteurization-batches__actions,
+.pasteurization-batches__action-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pasteurization-batches__action-row,
+.pasteurization-batches__form-actions,
+.pasteurization-batches__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pasteurization-batches__action-row {
+  padding-top: 0.25rem;
+}
+
+.pasteurization-batches__details p {
+  margin: 0;
+  color: #333;
+}
+
+.pasteurization-batches__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pasteurization-batches__action-form {
+  padding: 1rem;
+  border: 1px solid #d9e2ef;
+  border-radius: 0.75rem;
+  background: #fafcff;
+}
+
+.pasteurization-batches__form-actions {
+  justify-content: flex-end;
+}
+
+.pasteurization-batches__chips .br-button {
+  white-space: nowrap;
+}
+
+.pasteurization-batches .br-message {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .pasteurization-batches__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pasteurization-batches__form-actions,
+  .pasteurization-batches__action-row {
+    flex-direction: column;
+  }
+
+  .pasteurization-batches__form-actions .br-button,
+  .pasteurization-batches__action-row .br-button {
+    width: 100%;
+  }
+}

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 720px;
+  max-width: 1280px;
 }
 
 .tenant-admin__header {
@@ -37,6 +37,19 @@
 .tenant-admin__actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.tenant-admin__row-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.tenant-admin__table {
+  background: var(--pure-0, #fff);
+  border: 1px solid var(--gray-10, #e6e6e6);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .tenant-admin__feedback {

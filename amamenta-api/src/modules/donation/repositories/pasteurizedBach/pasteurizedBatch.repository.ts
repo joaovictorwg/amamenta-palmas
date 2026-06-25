@@ -8,6 +8,7 @@ export interface PasteurizationBatchRepository {
         microbiologyStatus?: MicrobiologyStatus;
         operatorId?: string;
     }, tenantId: string, tx?: any): Promise<PasteurizationBatch[]>;
+    resolvePending(id: string, tenantId: string, status: MicrobiologyStatus, tx?: any): Promise<PasteurizationBatch | null>;
     update(id: string, tenantId: string, data: Partial<PasteurizationBatch>, tx?: any): Promise<PasteurizationBatch>;
     updateStatus(id: string, tenantId: string, microbiologyStatus: MicrobiologyStatus): Promise<PasteurizationBatch>;
 }

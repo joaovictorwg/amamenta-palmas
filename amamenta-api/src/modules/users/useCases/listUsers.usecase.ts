@@ -12,7 +12,7 @@ export class ListUsersUseCase {
   constructor(private userRepository: UserRepository) { }
 
   async execute(filters: ListUsersInput, requester: Requester) {
-    if (requester.role === "admin") {
+    if (requester.role !== "super_admin") {
       filters.tenantId = requester.tenantId!;
     }
 

@@ -4,14 +4,15 @@ import type { UserRole } from "@/types/auth";
 export type AppSectionId = "overview" | "donations" | "donators" | "visits";
 
 export type SideNavItem = {
-  label: string;
+  labelKey: string;
+  icon: string;
   path: string;
   roles?: UserRole[];
 };
 
 export type AppSection = {
   id: AppSectionId;
-  label: string;
+  labelKey: string;
   path: string;
   sideNav: SideNavItem[];
 };
@@ -19,47 +20,47 @@ export type AppSection = {
 export const appSections: AppSection[] = [
   {
     id: "overview",
-    label: "Visao Geral",
+    labelKey: "navigation.overview",
     path: "/visao-geral",
     sideNav: [
-      { label: "Resumo", path: "/visao-geral" },
-      { label: "Alertas", path: "/visao-geral/alertas" },
-      { label: "Metricas", path: "/visao-geral/metricas" },
-      { label: "Equipe", path: "/visao-geral/equipe", roles: [ROLES.ADMIN] },
+      { labelKey: "navigation.summary", icon: "chart-line", path: "/visao-geral" },
+      { labelKey: "navigation.alerts", icon: "exclamation-triangle", path: "/visao-geral/alertas" },
+      { labelKey: "navigation.metrics", icon: "chart-bar", path: "/visao-geral/metricas" },
+      { labelKey: "navigation.team", icon: "users", path: "/visao-geral/equipe", roles: [ROLES.ADMIN] },
     ],
   },
   {
     id: "donations",
-    label: "Doacoes",
+    labelKey: "navigation.donations",
     path: "/doacoes",
     sideNav: [
-      { label: "Visao Geral", path: "/doacoes" },
-      { label: "Coletas", path: "/doacoes/coletas" },
-      { label: "Lotes", path: "/doacoes/lotes" },
-      { label: "Estoque", path: "/doacoes/estoque" },
-      { label: "Metricas", path: "/doacoes/metricas" },
+      { labelKey: "navigation.overview", icon: "chart-pie", path: "/doacoes" },
+      { labelKey: "navigation.collections", icon: "tint", path: "/doacoes/coletas" },
+      { labelKey: "navigation.batches", icon: "layer-group", path: "/doacoes/lotes" },
+      { labelKey: "navigation.stock", icon: "archive", path: "/doacoes/estoque" },
+      { labelKey: "navigation.metrics", icon: "chart-bar", path: "/doacoes/metricas" },
     ],
   },
   {
     id: "donators",
-    label: "Doadoras",
+    labelKey: "navigation.donators",
     path: "/doadoras",
     sideNav: [
-      { label: "Visao Geral", path: "/doadoras" },
-      { label: "Doadoras", path: "/doadoras/lista" },
-      { label: "Cadastro", path: "/doadoras/cadastro" },
-      { label: "Exames Pendentes", path: "/doadoras/exames-pendentes" },
-      { label: "Exportacoes", path: "/doadoras/exportacoes" },
+      { labelKey: "navigation.overview", icon: "chart-pie", path: "/doadoras" },
+      { labelKey: "navigation.donators", icon: "user", path: "/doadoras/lista" },
+      { labelKey: "navigation.registration", icon: "user-plus", path: "/doadoras/cadastro" },
+      { labelKey: "navigation.pendingExams", icon: "vial", path: "/doadoras/exames-pendentes" },
+      { labelKey: "navigation.exports", icon: "file-export", path: "/doadoras/exportacoes" },
     ],
   },
   {
     id: "visits",
-    label: "Visitas",
+    labelKey: "navigation.visits",
     path: "/visitas",
     sideNav: [
-      { label: "Agenda", path: "/visitas" },
-      { label: "Hoje", path: "/visitas/hoje" },
-      { label: "Historico", path: "/visitas/historico" },
+      { labelKey: "navigation.schedule", icon: "calendar-days", path: "/visitas" },
+      { labelKey: "navigation.today", icon: "calendar-day", path: "/visitas/hoje" },
+      { labelKey: "navigation.history", icon: "clock-rotate-left", path: "/visitas/historico" },
     ],
   },
 ];

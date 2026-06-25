@@ -4,6 +4,7 @@ export interface PasteurizedMilkUnit {
     id: string;
     tenantId: string;
     batchId: string;
+    batchCode?: string | null;
     volumeMl: number;
     expirationDate: Date;
     stockStatus: "AVAILABLE" | "DISTRIBUTED" | "EXPIRED" | "DISCARDED"

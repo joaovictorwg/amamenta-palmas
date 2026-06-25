@@ -25,6 +25,10 @@ export class FakeTenantRepository implements TenantRepository {
         return this.tenants.find((tenant) => tenant.id === id) ?? null;
     }
 
+    async findMany(): Promise<Tenant[]> {
+        return this.tenants;
+    }
+
     async findByName(name: string): Promise<Tenant | null> {
         const normalizedName = name.trim().toLowerCase();
 
@@ -43,5 +47,28 @@ export class FakeTenantRepository implements TenantRepository {
                 (tenant) => tenant.domain.trim().toLowerCase() === normalizedDomain
             ) ?? null
         );
+    }
+
+    async update(
+        id: string,
+        data: Partial<Pick<Tenant, "name" | "domain" | "autoJoinByDomain" | "isActive">>
+    ): Promise<Tenant | null> {
+        const index = this.tenants.findIndex((tenant) => tenant.id === id);
+
+        if (index === -1) {
+            return null;
+        }
+
+        this.tenants[index] = {
+            ...this.tenants[index],
+            ...data,
+            updatedAt: new Date(),
+        };
+
+        return this.tenants[index];
+    }
+
+    async delete(id: string): Promise<void> {
+        this.tenants = this.tenants.filter((tenant) => tenant.id !== id);
     }
 }

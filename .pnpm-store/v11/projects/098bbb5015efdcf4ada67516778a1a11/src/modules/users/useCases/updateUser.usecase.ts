@@ -25,6 +25,9 @@ export class UpdateUserUseCase {
         if (user.tenantId !== requester.tenantId) {
           throw new ForbiddenError("You don't have permission to update this user");
         }
+        if (user.role !== "employee" && requester.id !== id) {
+          throw new ForbiddenError("You don't have permission to update this user");
+        }
       } else if (requester.id !== id) {
         throw new ForbiddenError("You don't have permission to update this user");
       }
