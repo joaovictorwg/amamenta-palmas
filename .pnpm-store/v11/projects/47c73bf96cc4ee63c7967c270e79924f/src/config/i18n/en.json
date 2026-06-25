@@ -1,0 +1,23 @@
+{
+    "amamenta.language.ptBR": "Portuguese",
+    "amamenta.language.en": "English",
+    "amamenta.error.requiredEmail": "Email is required",
+    "amamenta.error.requiredPassword": "Password is required",
+    "amamenta.error.invalidCredentials": "Invalid credentials",
+    "amamenta.error.internalError": "Internal error. Try again.",
+    "amamenta.error.unexpectedError": "Unexpected error",
+    "amamenta.input.email": "Email",
+    "amamenta.input.email.placeholder": "Enter your email",
+    "amamenta.input.password": "Password",
+    "amamenta.input.password.placeholder": "Enter your password",
+    "amamenta.loading": "Loading",
+    "amamenta.login": "Sign in",
+    "amamenta.logout": "Sign out",
+    "amamenta.profile": "Profile",
+    "amamenta.appConfiguration": "App configuration",
+    "amamenta.generalView": "General view",
+    "amamenta.home.subtitle": "Home page",
+    "amamenta.home.welcome": "Welcome to the project",
+    "amamenta.donations": "Donations",
+    "amamenta.about.subtitle": "About the project"
+}
