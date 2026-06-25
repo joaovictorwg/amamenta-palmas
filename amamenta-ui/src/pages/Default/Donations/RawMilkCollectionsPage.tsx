@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import {
   BrButton,
   BrInput,
@@ -15,13 +16,6 @@ import type { RawMilkCollection, RawMilkResponse, RawMilkFilterTab } from "@/typ
 
 import "./RawMilkCollectionsPage.css";
 
-const TABS: { key: RawMilkFilterTab; label: string }[] = [
-  { key: "PENDING", label: "Pendentes" },
-  { key: "APPROVED", label: "Aprovados" },
-  { key: "REJECTED", label: "Rejeitados" },
-  { key: "EXPIRED", label: "Vencidos" },
-];
-
 type Donator = { id: string; name: string };
 
 function formatDate(value: string) {
@@ -30,13 +24,14 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(date);
 }
 
-function getStatusTag(status: RawMilkCollection["triageStatus"]) {
-  if (status === "APPROVED") return <BrTag color="success" value="Aprovado" />;
-  if (status === "REJECTED") return <BrTag color="danger" value="Rejeitado" />;
-  return <BrTag color="warning" value="Pendente" />;
+function getStatusTag(status: RawMilkCollection["triageStatus"], t: (key: string) => string) {
+  if (status === "APPROVED") return <BrTag color="success" value={t("rawMilk.status.approved")} />;
+  if (status === "REJECTED") return <BrTag color="danger" value={t("rawMilk.status.rejected")} />;
+  return <BrTag color="warning" value={t("rawMilk.status.pending")} />;
 }
 
 export default function RawMilkCollectionsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState<RawMilkFilterTab>("PENDING");
@@ -64,7 +59,7 @@ export default function RawMilkCollectionsPage() {
       setCollections(response.data.data);
       setTotal(response.data.meta.total);
     } catch {
-      setError("Nao foi possivel carregar as coletas.");
+      setError(t("rawMilk.loadError"));
     } finally {
       setLoading(false);
     }
@@ -72,7 +67,7 @@ export default function RawMilkCollectionsPage() {
 
   useEffect(() => {
     void loadCollections();
-  }, [activeTab, page, limit]);
+  }, [activeTab, page, limit, t]);
 
   function handleTabChange(tab: RawMilkFilterTab) {
     setActiveTab(tab);
@@ -83,18 +78,18 @@ export default function RawMilkCollectionsPage() {
 
   const columns = useMemo<BrTableColumn<RawMilkCollection>[]>(
     () => [
-     { key: "donorName", title: "Doadora", width: "24%", boldHeading: true, render: (v: unknown, row: RawMilkCollection) => (v as string | null) ?? row.donorId },
-      { key: "volumeMl", title: "Volume (ml)", width: "14%" },
-     { key: "expirationDate", title: "Validade", width: "16%", render: (v: unknown) => formatDate(String(v)) },
-     { key: "triageStatus", title: "Status", width: "16%", render: (v: unknown) => getStatusTag(v as RawMilkCollection["triageStatus"]) },
+     { key: "donorName", title: t("visits.table.donator"), width: "24%", boldHeading: true, render: (v: unknown, row: RawMilkCollection) => (v as string | null) ?? row.donorId },
+      { key: "volumeMl", title: t("common.volumeMl"), width: "14%" },
+     { key: "expirationDate", title: t("rawMilk.table.expiration"), width: "16%", render: (v: unknown) => formatDate(String(v)) },
+     { key: "triageStatus", title: t("common.status"), width: "16%", render: (v: unknown) => getStatusTag(v as RawMilkCollection["triageStatus"], t) },
          {
         key: "id",
-        title: "Acoes",
+        title: t("common.actions"),
         align: "right",
         width: "12%",
         render: (_v: unknown, row: RawMilkCollection) => (
           <BrButton
-            aria-label={`Ver detalhes da coleta de ${row.donorName ?? row.donorId}`}
+            aria-label={t("rawMilk.actions.viewDetails", { name: row.donorName ?? row.donorId })}
             circle
             icon="eye"
             size="small"
@@ -103,25 +98,32 @@ export default function RawMilkCollectionsPage() {
         ),
       },
     ],
-    [],
+    [t],
   );
+
+  const tabs: { key: RawMilkFilterTab; label: string }[] = [
+    { key: "PENDING", label: t("rawMilk.tabs.pending") },
+    { key: "APPROVED", label: t("rawMilk.tabs.approved") },
+    { key: "REJECTED", label: t("rawMilk.tabs.rejected") },
+    { key: "EXPIRED", label: t("rawMilk.tabs.expired") },
+  ];
 
   return (
     <section className="raw-milk-collections">
       <header className="raw-milk-collections__header">
         <div>
-          <h1 className="raw-milk-collections__title">Gestao de Coletas</h1>
+          <h1 className="raw-milk-collections__title">{t("rawMilk.title")}</h1>
           <p className="raw-milk-collections__description">
-            Triagem e acompanhamento dos frascos de leite cru recebidos.
+            {t("rawMilk.description")}
           </p>
         </div>
         <BrButton icon="plus" primary onClick={() => setIsNewModalOpen(true)}>
-          Nova Coleta
+          {t("rawMilk.newCollection")}
         </BrButton>
       </header>
 
       <div className="raw-milk-collections__tabs">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
@@ -143,19 +145,19 @@ export default function RawMilkCollectionsPage() {
           columns={columns}
           data={rows}
           density="small"
-          emptyContent="Nenhuma coleta encontrada."
+          emptyContent={t("rawMilk.table.empty")}
           isLoading={loading}
           paginationProps={{
             page,
             perPage: limit,
             total,
             showTotalizers: true,
-            itemTitleSingular: "coleta",
-            itemTitlePlural: "coletas",
+            itemTitleSingular: t("rawMilk.pagination.singular"),
+            itemTitlePlural: t("rawMilk.pagination.plural"),
             onPageChange: setPage,
             onPerPageChange: setLimit,
           }}
-          title="Coletas de leite cru"
+          title={t("rawMilk.table.title")}
         />
       </div>
 
@@ -187,6 +189,7 @@ function NewCollectionModal({
   createdBy: string;
   onCreated: () => void;
 }) {
+  const { t } = useTranslation();
   const [donorQuery, setDonorQuery] = useState("");
   const [donorResults, setDonorResults] = useState<Donator[]>([]);
   const [donor, setDonor] = useState<Donator | null>(null);
@@ -221,10 +224,10 @@ function NewCollectionModal({
 
   async function handleSubmit() {
     const newErrors: Record<string, string> = {};
-    if (!donor) newErrors.donor = "Selecione a doadora";
-    if (!volumeMl || Number(volumeMl) <= 0) newErrors.volumeMl = "Informe o volume";
-    if (!collectionDate) newErrors.collectionDate = "Informe a data da coleta";
-    if (!receivedAt) newErrors.receivedAt = "Informe a data de recebimento";
+    if (!donor) newErrors.donor = t("rawMilk.form.selectDonator");
+    if (!volumeMl || Number(volumeMl) <= 0) newErrors.volumeMl = t("rawMilk.form.volumeRequired");
+    if (!collectionDate) newErrors.collectionDate = t("rawMilk.form.collectionDateRequired");
+    if (!receivedAt) newErrors.receivedAt = t("rawMilk.form.receivedAtRequired");
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0 || !donor) return;
 
@@ -240,7 +243,7 @@ function NewCollectionModal({
       reset();
       onCreated();
     } catch (err) {
-      let message = "Erro ao registrar coleta.";
+      let message = t("rawMilk.form.createError");
       if (axios.isAxiosError(err) && err.response?.data?.message) {
         message = err.response.data.message;
       }
@@ -255,15 +258,15 @@ function NewCollectionModal({
       isOpen={isOpen}
       onClose={onClose}
       showClose
-      title="Nova Coleta"
-      primaryAction={{ label: submitting ? "Salvando..." : "Registrar", action: () => void handleSubmit() }}
-      secondaryAction={{ label: "Cancelar", action: onClose }}
+      title={t("rawMilk.form.newTitle")}
+      primaryAction={{ label: submitting ? t("rawMilk.form.saving") : t("rawMilk.form.register"), action: () => void handleSubmit() }}
+      secondaryAction={{ label: t("common.cancel"), action: onClose }}
     >
       <div className="raw-milk-collections__form">
         <div className="raw-milk-collections__autocomplete">
           <BrInput
-            label="Doadora"
-            placeholder="Buscar por nome"
+            label={t("visits.table.donator")}
+            placeholder={t("visits.form.searchByName")}
             value={donorQuery}
             status={errors.donor ? "danger" : undefined}
             feedbackText={errors.donor}
@@ -292,7 +295,7 @@ function NewCollectionModal({
 
         <BrInput
           type="number"
-          label="Volume (ml)"
+          label={t("common.volumeMl")}
           value={volumeMl}
           status={errors.volumeMl ? "danger" : undefined}
           feedbackText={errors.volumeMl}
@@ -300,7 +303,7 @@ function NewCollectionModal({
         />
         <BrInput
           type="datetime-local"
-          label="Data da coleta"
+          label={t("rawMilk.form.collectionDate")}
           value={collectionDate}
           status={errors.collectionDate ? "danger" : undefined}
           feedbackText={errors.collectionDate}
@@ -308,7 +311,7 @@ function NewCollectionModal({
         />
         <BrInput
           type="datetime-local"
-          label="Data de recebimento"
+          label={t("rawMilk.form.receivedAt")}
           value={receivedAt}
           status={errors.receivedAt ? "danger" : undefined}
           feedbackText={errors.receivedAt}
@@ -321,8 +324,6 @@ function NewCollectionModal({
 }
 
 // --- Modal de Detalhes (substitui o "drawer" — a lib nao tem componente de drawer) ---
-
-const STEPS = ["Extraido", "Recebido", "Triado", "Utilizado / Descartado"];
 
 function getActiveStep(collection: RawMilkCollection) {
   if (collection.storageStatus === "USED_IN_BATCH" || collection.storageStatus === "DISCARDED") return 3;
@@ -337,19 +338,26 @@ function DetailsModal({
   collection: RawMilkCollection | null;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   if (!collection) return null;
   const activeStep = getActiveStep(collection);
+  const steps = [
+    t("rawMilk.details.steps.extracted"),
+    t("rawMilk.details.steps.received"),
+    t("rawMilk.details.steps.triaged"),
+    t("rawMilk.details.steps.usedOrDiscarded"),
+  ];
 
   return (
-    <BrModal isOpen showClose onClose={onClose} title="Detalhes da coleta">
-      <p><strong>Doadora:</strong> {collection.donorName ?? collection.donorId}</p>
-      <p><strong>Volume:</strong> {collection.volumeMl} ml</p>
-      <p><strong>Validade:</strong> {formatDate(collection.expirationDate)}</p>
-      <p><strong>Status:</strong> {getStatusTag(collection.triageStatus)}</p>
+    <BrModal isOpen showClose onClose={onClose} title={t("rawMilk.details.title")}>
+      <p><strong>{t("visits.table.donator")}:</strong> {collection.donorName ?? collection.donorId}</p>
+      <p><strong>{t("common.volume")}:</strong> {collection.volumeMl} ml</p>
+      <p><strong>{t("rawMilk.table.expiration")}:</strong> {formatDate(collection.expirationDate)}</p>
+      <p><strong>{t("common.status")}:</strong> {getStatusTag(collection.triageStatus, t)}</p>
 
-      <h4>Linha do tempo</h4>
+      <h4>{t("rawMilk.details.timeline")}</h4>
       <ol className="raw-milk-collections__timeline">
-        {STEPS.map((step, index) => (
+        {steps.map((step, index) => (
           <li
             key={step}
             className={
@@ -364,15 +372,15 @@ function DetailsModal({
 
       {collection.observations && (
         <>
-          <h4>Observacoes clinicas</h4>
+          <h4>{t("rawMilk.details.clinicalObservations")}</h4>
           <p>{collection.observations}</p>
         </>
       )}
 
       {collection.triageStatus === "REJECTED" && (
         <>
-          <h4>Motivo de descarte</h4>
-          <p>{collection.discardReason ?? "Nao informado"}</p>
+          <h4>{t("rawMilk.details.discardReason")}</h4>
+          <p>{collection.discardReason ?? t("rawMilk.details.notInformed")}</p>
         </>
       )}
     </BrModal>

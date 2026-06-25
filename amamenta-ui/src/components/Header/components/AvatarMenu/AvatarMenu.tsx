@@ -33,7 +33,7 @@ export default function AvatarMenu() {
                                 content: t("amamenta.profile"),
                                 icon: "user",
                                 onClick: () =>
-                                    window.alert("/profile"),
+                                    navigate("/perfil"),
                                 closeOnClick: true,
                             },
                             {

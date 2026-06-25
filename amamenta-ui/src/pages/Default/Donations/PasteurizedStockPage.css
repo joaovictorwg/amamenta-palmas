@@ -1,0 +1,22 @@
+.pasteurized-stock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1280px;
+}
+
+.pasteurized-stock h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.pasteurized-stock header p {
+  color: var(--gray-70, #3d3d3d);
+  margin: 8px 0 0;
+}
+
+.pasteurized-stock__modal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

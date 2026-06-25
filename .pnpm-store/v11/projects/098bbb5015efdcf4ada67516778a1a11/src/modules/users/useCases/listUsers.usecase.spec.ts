@@ -58,4 +58,33 @@ describe("ListUsersUseCase", () => {
     expect(result).toHaveLength(1);
     expect(result[0].email).toBe("admin1@tenant.com");
   });
+
+  it("should list only tenant users for employee", async () => {
+    await userRepository.create({
+      name: "Employee 1",
+      email: "employee1@tenant.com",
+      passwordHash: "hash",
+      role: "employee",
+      tenantId: "tenant-1",
+      isVerified: true,
+    });
+
+    await userRepository.create({
+      name: "Employee 2",
+      email: "employee2@tenant2.com",
+      passwordHash: "hash",
+      role: "employee",
+      tenantId: "tenant-2",
+      isVerified: true,
+    });
+
+    const result = await useCase.execute({}, {
+      id: "employee-id",
+      role: "employee",
+      tenantId: "tenant-1",
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0].email).toBe("employee1@tenant.com");
+  });
 });

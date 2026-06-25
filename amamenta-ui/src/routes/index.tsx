@@ -17,6 +17,8 @@ import ModulePlaceholder from "@/pages/ModulePlaceholder/ModulePlaceholder";
 import TenantAdminPanel from "@/pages/TenantAdmin/TenantAdminPanel";
 import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollectionsPage";
 import DonationsPage from "@/pages/Default/Donations/DonationsPage";
+import PasteurizedStockPage from "@/pages/Default/Donations/PasteurizedStockPage";
+import UserProfilePage from "@/pages/UserProfile/UserProfilePage";
 
 import {
   ALLOWED_DASHBOARD_ROLES,
@@ -47,9 +49,9 @@ export const router = createBrowserRouter([
         path: "visao-geral/alertas",
         element: (
           <ModulePlaceholder
-            moduleName="Visao Geral"
-            title="Alertas"
-            description="Alertas e pendencias operacionais do hospital."
+            moduleNameKey="navigation.overview"
+            titleKey="navigation.alerts"
+            descriptionKey="modulePlaceholder.overviewAlerts"
           />
         ),
       },
@@ -57,15 +59,19 @@ export const router = createBrowserRouter([
         path: "visao-geral/metricas",
         element: (
           <ModulePlaceholder
-            moduleName="Visao Geral"
-            title="Metricas"
-            description="Indicadores consolidados da operacao."
+            moduleNameKey="navigation.overview"
+            titleKey="navigation.metrics"
+            descriptionKey="modulePlaceholder.overviewMetrics"
           />
         ),
       },
       {
         path: "visao-geral/equipe",
         element: <TenantAdminPanel />,
+      },
+      {
+        path: "perfil",
+        element: <UserProfilePage />,
       },
       {
         path: "doacoes",
@@ -80,29 +86,23 @@ export const router = createBrowserRouter([
         path: "doacoes/lotes",
         element: (
           <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Lotes"
-            description="Controle dos lotes de pasteurizacao."
+            moduleNameKey="navigation.donations"
+            titleKey="navigation.batches"
+            descriptionKey="modulePlaceholder.donationBatches"
           />
         ),
       },
       {
         path: "doacoes/estoque",
-        element: (
-          <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Estoque"
-            description="Disponibilidade e distribuicao do leite pasteurizado."
-          />
-        ),
+        element: <PasteurizedStockPage />,
       },
       {
         path: "doacoes/metricas",
         element: (
           <ModulePlaceholder
-            moduleName="Doacoes"
-            title="Metricas"
-            description="Indicadores do fluxo de doacoes."
+            moduleNameKey="navigation.donations"
+            titleKey="navigation.metrics"
+            descriptionKey="modulePlaceholder.donationMetrics"
           />
         ),
       },
@@ -134,9 +134,9 @@ export const router = createBrowserRouter([
         path: "doadoras/exportacoes",
         element: (
           <ModulePlaceholder
-            moduleName="Doadoras"
-            title="Exportacoes"
-            description="Geracao de documentos oficiais de cadastro."
+            moduleNameKey="navigation.donators"
+            titleKey="navigation.exports"
+            descriptionKey="modulePlaceholder.donatorExports"
           />
         ),
       },
@@ -146,11 +146,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "visitas/hoje",
-        element: <VisitsPage todayOnly />,
+        element: <VisitsPage mode="today" />,
       },
       {
         path: "visitas/historico",
-        element: <VisitsPage />,
+        element: <VisitsPage mode="history" />,
       },
     ],
   },

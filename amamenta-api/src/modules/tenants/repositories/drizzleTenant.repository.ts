@@ -1,7 +1,7 @@
 import { TenantRepository } from "./tenant.repository";
 import { db } from "@/shared/database/connection";
 import { tenants } from "@/shared/database/schema/tenant.schema";
-import { eq, ilike } from "drizzle-orm";
+import { asc, eq, ilike } from "drizzle-orm";
 import { Tenant } from "../entities/tenant.entity";
 
 export class DrizzleTenantRepository implements TenantRepository {
@@ -25,6 +25,10 @@ export class DrizzleTenantRepository implements TenantRepository {
         return tenant ?? null;
     }
 
+    async findMany(): Promise<Tenant[]> {
+        return db.select().from(tenants).orderBy(asc(tenants.name)) as Promise<Tenant[]>;
+    }
+
     async findByName(name: string): Promise<Tenant | null> {
         const [tenant] = await db
             .select()
@@ -41,5 +45,22 @@ export class DrizzleTenantRepository implements TenantRepository {
             .where(ilike(tenants.domain, domain.trim()));
 
         return tenant ?? null;
+    }
+
+    async update(
+        id: string,
+        data: Partial<Pick<Tenant, "name" | "domain" | "autoJoinByDomain" | "isActive">>
+    ): Promise<Tenant | null> {
+        const [tenant] = await db
+            .update(tenants)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(tenants.id, id))
+            .returning();
+
+        return tenant ?? null;
+    }
+
+    async delete(id: string): Promise<void> {
+        await db.delete(tenants).where(eq(tenants.id, id));
     }
 }

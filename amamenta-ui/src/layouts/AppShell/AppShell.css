@@ -12,11 +12,35 @@
   display: grid;
   grid-template-columns: 224px minmax(0, 1fr);
   min-height: calc(100vh - 150px);
+  transition: grid-template-columns 160ms ease;
+}
+
+.app-shell__body--collapsed {
+  grid-template-columns: 56px minmax(0, 1fr);
 }
 
 .app-shell__side-nav {
   border-right: 1px solid var(--gray-20, #ccc);
   background: var(--pure-0, #fff);
+}
+
+.app-shell__side-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: flex-end;
+  border: 0;
+  border-bottom: 1px solid var(--gray-10, #e6e6e6);
+  background: transparent;
+  color: var(--interactive, #1351b4);
+  cursor: pointer;
+  padding: 0 16px;
+}
+
+.app-shell__body--collapsed .app-shell__side-toggle {
+  justify-content: center;
+  padding: 0;
 }
 
 .app-shell__side-list {
@@ -29,11 +53,27 @@
   display: flex;
   min-height: 40px;
   align-items: center;
+  gap: 10px;
   border-bottom: 1px solid var(--gray-10, #e6e6e6);
   color: var(--interactive, #1351b4);
   font-size: 14px;
   padding: 0 16px;
   text-decoration: none;
+}
+
+.app-shell__side-link i {
+  width: 18px;
+  flex: 0 0 18px;
+  text-align: center;
+}
+
+.app-shell__body--collapsed .app-shell__side-link {
+  justify-content: center;
+  padding: 0;
+}
+
+.app-shell__body--collapsed .app-shell__side-link span {
+  display: none;
 }
 
 .app-shell__side-link:hover {
@@ -51,14 +91,27 @@
   padding: 24px;
 }
 
+.app-shell__body--collapsed .app-shell__content > * {
+  max-width: none;
+  width: 100%;
+}
+
 @media (max-width: 768px) {
   .app-shell__body {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell__body--collapsed {
     grid-template-columns: 1fr;
   }
 
   .app-shell__side-nav {
     border-bottom: 1px solid var(--gray-20, #ccc);
     border-right: 0;
+  }
+
+  .app-shell__side-toggle {
+    display: none;
   }
 
   .app-shell__side-list {
@@ -68,5 +121,14 @@
 
   .app-shell__side-link {
     min-width: max-content;
+  }
+
+  .app-shell__body--collapsed .app-shell__side-link {
+    justify-content: flex-start;
+    padding: 0 16px;
+  }
+
+  .app-shell__body--collapsed .app-shell__side-link span {
+    display: inline;
   }
 }
