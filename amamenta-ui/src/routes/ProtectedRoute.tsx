@@ -30,7 +30,7 @@ export default function ProtectedRoute({
     if (!hasPermission) {
         return (
             <Navigate
-                to="/unauthorized"
+                to="/login"
                 replace
             />
         );

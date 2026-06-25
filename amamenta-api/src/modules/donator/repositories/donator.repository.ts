@@ -10,6 +10,23 @@ import { DonatorStatus } from "../enums/donatorStatus.enum";
 
 export type CreateDonatorData = Omit<Donator, "id" | "createdAt" | "updatedAt">;
 
+export type DonatorOverview = {
+  metrics: {
+    activeDonators: number;
+    pendingExams: number;
+    inactivityRisk: number;
+    pendingVisits: number;
+  };
+  alerts: {
+    examsExpiringThisMonth: number;
+    inactivatedThisWeek: number;
+    newWhatsappRegistrations: number;
+  };
+  monthlyNewDonators: { month: string; total: number }[];
+  statusDistribution: { status: DonatorStatus; total: number }[];
+  latestRegistrations: Pick<Donator, "id" | "name" | "phone" | "status">[];
+};
+
 export interface DonatorRepository {
   create(data: CreateDonatorData): Promise<Donator>;
 
@@ -26,6 +43,8 @@ export interface DonatorRepository {
   findById(id: string, tenantId: string): Promise<DonatorProfile | null>;
 
   findByPhone(phone: string, tenantId: string): Promise<Donator | null>;
+
+  getOverview(tenantId: string): Promise<DonatorOverview>;
 
   update(
     id: string,

@@ -1,7 +1,7 @@
 import { UserRepository } from "@/modules/users/repositories/user.repository";
 import { AppError } from "@/shared/errors/AppError";
-import { verifyResetPasswordToken } from "@/shared/utils/jwt";
 import { hashPassword } from "@/shared/utils/hash";
+import { ResetPwdMailRepository } from "../../repositories/resetPwdMail.repository";
 
 interface Request {
     token: string;
@@ -10,28 +10,27 @@ interface Request {
 }
 
 export class ResetPasswordUseCase {
-    constructor(private userRepository: UserRepository) { }
+    constructor(
+        private userRepository: UserRepository,
+        private resetPwdMailRepository: ResetPwdMailRepository,
+    ) { }
 
-    async execute({ token, newPassword, lang = "pt" }: Request) {
-        let decoded;
-        try {
-            decoded = verifyResetPasswordToken(token);
-        } catch {
-            throw new AppError("i18n:errors.invalid_invite_token", 400);
+    async execute({ token, newPassword }: Request) {
+        const resetPwdMail = await this.resetPwdMailRepository.findByToken(token);
+
+        if (!resetPwdMail || resetPwdMail.used || new Date() > resetPwdMail.expiresAt) {
+            throw new AppError("Token de redefinicao de senha invalido ou expirado", 400);
         }
 
-        if (decoded.purpose !== "reset_password") {
-            throw new AppError("i18n:errors.invalid_invite_token", 400);
-        }
-
-        const user = await this.userRepository.findById(decoded.sub);
-        if (!user || user.email !== decoded.email) {
-            throw new AppError("i18n:errors.invalid_invite_token", 400);
+        const user = await this.userRepository.findById(resetPwdMail.userId);
+        if (!user || user.email !== resetPwdMail.email) {
+            throw new AppError("Token de redefinicao de senha invalido ou expirado", 400);
         }
 
         const passwordHash = await hashPassword(newPassword);
         await this.userRepository.update(user.id, { passwordHash });
+        await this.resetPwdMailRepository.markAsUsed(resetPwdMail.id);
 
-        return { message: "success.email_sent" };
+        return { message: "Senha redefinida com sucesso" };
     }
 }

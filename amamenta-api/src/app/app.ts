@@ -15,6 +15,7 @@ import ScalarApiReference from "@scalar/fastify-api-reference";
 import { routes } from "./routes";
 import { errorHandler } from "./errorHandler";
 import i18next, { i18nextMiddleware } from "@/shared/i18n/i18next";
+import { env } from "@/shared/config/env";
 
 export const app = fastify({
   logger: true,
@@ -30,7 +31,7 @@ app.register(donationsRoutes);
 
 // CORS
 app.register(fastifyCors, {
-  origin: true,
+  origin: env.frontendUrl ? env.frontendUrl.split(",") : true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 });
 

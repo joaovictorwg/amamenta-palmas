@@ -2,6 +2,7 @@ import { BrTab } from "@govbr-ds/react-components";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import Header from "@/components/Header/Header";
+import { useAuth } from "@/contexts/AuthContext/useAuth";
 import { appSections, getSectionByPath } from "@/navigation/appNavigation";
 
 import "./AppShell.css";
@@ -9,9 +10,13 @@ import "./AppShell.css";
 export default function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const activeSection = getSectionByPath(location.pathname);
   const activeIndex = appSections.findIndex(
     (section) => section.id === activeSection.id,
+  );
+  const visibleSideNav = activeSection.sideNav.filter(
+    (item) => !item.roles || (user && item.roles.includes(user.role)),
   );
 
   function handleTabChange(index: number) {
@@ -38,7 +43,7 @@ export default function AppShell() {
       <div className="app-shell__body">
         <aside className="app-shell__side-nav" aria-label={activeSection.label}>
           <ul className="app-shell__side-list">
-            {activeSection.sideNav.map((item) => (
+            {visibleSideNav.map((item) => (
               <li key={item.path}>
                 <NavLink
                   className={({ isActive }) =>

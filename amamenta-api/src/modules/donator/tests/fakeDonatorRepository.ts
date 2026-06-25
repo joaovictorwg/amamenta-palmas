@@ -9,6 +9,7 @@ import {
   CreateDonatorExamData,
   DonatorClinicalHistoryRepository,
   DonatorExamsRepository,
+  DonatorOverview,
   DonatorRepository,
   UpsertDonatorClinicalHistoryData,
 } from "../repositories/donator.repository";
@@ -74,6 +75,37 @@ export class FakeDonatorRepository implements DonatorRepository {
         (item) => item.phone === phone && item.tenantId === tenantId,
       ) ?? null
     );
+  }
+
+  async getOverview(tenantId: string): Promise<DonatorOverview> {
+    const data = this.donators.filter((item) => item.tenantId === tenantId);
+
+    return {
+      metrics: {
+        activeDonators: data.filter((item) => item.status === DonatorStatus.ACTIVE).length,
+        pendingExams: data.filter((item) => item.status === DonatorStatus.PENDING_EXAMS).length,
+        inactivityRisk: 0,
+        pendingVisits: data.filter(
+          (item) => item.status === DonatorStatus.PENDING_EXAMS && item.homeCollection,
+        ).length,
+      },
+      alerts: {
+        examsExpiringThisMonth: 0,
+        inactivatedThisWeek: 0,
+        newWhatsappRegistrations: 0,
+      },
+      monthlyNewDonators: [],
+      statusDistribution: Object.values(DonatorStatus).map((status) => ({
+        status,
+        total: data.filter((item) => item.status === status).length,
+      })),
+      latestRegistrations: data.slice(-5).map((item) => ({
+        id: item.id,
+        name: item.name,
+        phone: item.phone,
+        status: item.status,
+      })),
+    };
   }
 
   async update(

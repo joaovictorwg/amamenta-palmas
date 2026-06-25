@@ -21,8 +21,6 @@ describe("AuthenticateUserUseCase", () => {
             role: "admin",
             tenantId: "tenant-1",
             isVerified: true,
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
         });
 
         const result = await useCase.execute({
@@ -44,8 +42,6 @@ describe("AuthenticateUserUseCase", () => {
             role: "admin",
             tenantId: "tenant-1",
             isVerified: true,
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
         });
 
         await expect(

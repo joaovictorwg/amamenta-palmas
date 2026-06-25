@@ -3,3 +3,8 @@ export * from './user.schema'
 export * from './invite.schema'
 export * from "./employee.schema";
 export * from './donator.schema'
+export * from "./resetPwdMail.schema";
+export * from "./visit.schema";
+export * from "./rawMilkCollections.schema";
+export * from "./pasteurizationBatches.schema";
+export * from "./pasteurizedMilkUnits.schema";

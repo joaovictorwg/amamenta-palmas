@@ -7,6 +7,8 @@ import { rawMilkRoutes } from "@/modules/donation/routes/rawMilk.routes";
 import { pasteurizationBatchRoutes } from "@/modules/donation/routes/pasteurizationBatch.routes";
 import { pasteurizedMilkRoutes } from "@/modules/donation/routes/pasteurizedMilk.routes";
 import { usersRoutes } from "@/modules/users/routes/users.routes";
+import { visitRoutes } from "@/modules/visits/routes/visit.routes";
+import { overviewRoutes } from "@/modules/overview/routes/overview.routes";
 
 export async function routes(app: FastifyInstance) {
   await app.register(donatorRoutes);
@@ -17,4 +19,6 @@ export async function routes(app: FastifyInstance) {
   await app.register(pasteurizationBatchRoutes, { prefix: "/donations" })
   await app.register(pasteurizedMilkRoutes, { prefix: "/donations" })
   await app.register(rawMilkRoutes, { prefix: "/donations" })
+  await app.register(visitRoutes)
+  await app.register(overviewRoutes)
 }

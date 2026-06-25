@@ -1,33 +1,23 @@
-import { MailProvider } from "@/shared/mail/mail.provider";
 import { env } from "@/shared/config/env";
-import { signResetPasswordToken } from "@/shared/utils/jwt"; // vamos criar essa função já já
+import { MailProvider } from "@/shared/mail/mail.provider";
 
 interface Params {
-    mailProvider: MailProvider;
-    userId: string;
-    email: string;
+  mailProvider: MailProvider;
+  email: string;
+  token: string;
 }
 
 export async function sendResetPasswordEmail({
-    mailProvider,
-    userId,
-    email,
+  mailProvider,
+  email,
+  token,
 }: Params) {
-    const token = signResetPasswordToken({
-        sub: userId,
-        email,
-        purpose: "reset_password",
-    });
+  const resetUrl = `${env.appBaseUrl}/reset-password?token=${token}`;
 
-    const resetUrl = `${env.appBaseUrl}/reset-password?token=${token}`;
-    const subject = "Recuperação de senha";
-    const html = `<p>Para redefinir sua senha, clique <a href="${resetUrl}">aqui</a>.</p>`;
-    const text = `Para redefinir sua senha, acesse: ${resetUrl}`;
-
-    await mailProvider.send({
-        to: email,
-        subject,
-        html,
-        text,
-    });
+  await mailProvider.send({
+    to: email,
+    subject: "Recuperacao de senha",
+    html: `<p>Para redefinir sua senha, clique <a href="${resetUrl}">aqui</a>.</p>`,
+    text: `Para redefinir sua senha, acesse: ${resetUrl}`,
+  });
 }

@@ -4,11 +4,11 @@ import { FakeUserRepository } from "../../tests/fakes/fakeUserRepository";
 import { assertCanResendVerification } from "../../utils/resendVerificationRateLimiter";
 import { sendVerificationEmail } from "../../utils/sendVerificationEmail";
 
-jest.mock("../utils/resendVerificationRateLimiter", () => ({
+jest.mock("../../utils/resendVerificationRateLimiter", () => ({
     assertCanResendVerification: jest.fn(),
 }));
 
-jest.mock("../utils/sendVerificationEmail", () => ({
+jest.mock("../../utils/sendVerificationEmail", () => ({
     sendVerificationEmail: jest.fn(),
 }));
 
@@ -39,8 +39,6 @@ describe("ResendVerificationEmailUseCase", () => {
             role: "employee",
             tenantId: "tenant-1",
             isVerified: true,
-            twoFactorEnabled: false,
-            twoFactorSecret: null,
         });
 
         const result = await useCase.execute({ email: "user@tenant.com" });
@@ -90,8 +88,5 @@ describe("ResendVerificationEmailUseCase", () => {
         await useCase.execute({ email: "  USER@TENANT.COM  " });
 
         expect(assertCanResendVerification).toHaveBeenCalledWith("user@tenant.com");
-    });
-});
-esendVerification).toHaveBeenCalledWith("user@tenant.com");
     });
 });

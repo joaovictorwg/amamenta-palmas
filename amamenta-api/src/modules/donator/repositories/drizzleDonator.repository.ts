@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, lt } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, lt, lte, sql } from "drizzle-orm";
 
 import { db } from "@/shared/database/connection";
 import {
@@ -20,6 +20,7 @@ import {
   CreateDonatorExamData,
   DonatorClinicalHistoryRepository,
   DonatorExamsRepository,
+  DonatorOverview,
   DonatorRepository,
   UpsertDonatorClinicalHistoryData,
 } from "./donator.repository";
@@ -142,6 +143,132 @@ export class DrizzleDonatorRepository implements DonatorRepository {
       .limit(1);
 
     return (donator as Donator | undefined) ?? null;
+  }
+
+  async getOverview(tenantId: string): Promise<DonatorOverview> {
+    const now = new Date();
+    const inactivityRiskDate = new Date(now);
+    const weekStart = new Date(now);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const registrationDate = sql<Date>`coalesce(${donators.registeredAt}, ${donators.createdAt})`;
+    const registrationMonth = sql<number>`extract(month from ${registrationDate})::int`;
+
+    inactivityRiskDate.setDate(now.getDate() - 50);
+    weekStart.setDate(now.getDate() - 7);
+
+    const countDonators = async (
+      whereClause: ReturnType<typeof and>,
+    ): Promise<number> => {
+      const [row] = await db
+        .select({ total: count() })
+        .from(donators)
+        .where(whereClause);
+
+      return Number(row.total);
+    };
+
+    const [
+      activeDonators,
+      pendingExams,
+      inactivityRisk,
+      pendingVisits,
+      inactivatedThisWeek,
+      newWhatsappRegistrations,
+      examsExpiringRows,
+      monthlyRows,
+      statusRows,
+      latestRegistrations,
+    ] = await Promise.all([
+      countDonators(and(eq(donators.tenantId, tenantId), eq(donators.status, DonatorStatus.ACTIVE))),
+      countDonators(and(eq(donators.tenantId, tenantId), eq(donators.status, DonatorStatus.PENDING_EXAMS))),
+      countDonators(
+        and(
+          eq(donators.tenantId, tenantId),
+          eq(donators.status, DonatorStatus.ACTIVE),
+          lt(donators.lastCollectionDate, inactivityRiskDate),
+        ),
+      ),
+      countDonators(
+        and(
+          eq(donators.tenantId, tenantId),
+          eq(donators.status, DonatorStatus.PENDING_EXAMS),
+          eq(donators.homeCollection, true),
+        ),
+      ),
+      countDonators(
+        and(
+          eq(donators.tenantId, tenantId),
+          eq(donators.status, DonatorStatus.INACTIVE),
+          gte(donators.updatedAt, weekStart),
+        ),
+      ),
+      countDonators(
+        and(
+          eq(donators.tenantId, tenantId),
+          gte(donators.createdAt, weekStart),
+          ilike(donators.guidanceSourceOther, "%whatsapp%"),
+        ),
+      ),
+      db
+        .select({ total: count() })
+        .from(donatorExams)
+        .innerJoin(donators, eq(donators.id, donatorExams.donatorId))
+        .where(
+          and(
+            eq(donators.tenantId, tenantId),
+            gte(donatorExams.validUntil, now),
+            lte(donatorExams.validUntil, monthEnd),
+          ),
+        ),
+      db
+        .select({ month: registrationMonth, total: count() })
+        .from(donators)
+        .where(and(eq(donators.tenantId, tenantId), gte(registrationDate, yearStart)))
+        .groupBy(registrationMonth),
+      db
+        .select({ status: donators.status, total: count() })
+        .from(donators)
+        .where(eq(donators.tenantId, tenantId))
+        .groupBy(donators.status),
+      db
+        .select({
+          id: donators.id,
+          name: donators.name,
+          phone: donators.phone,
+          status: donators.status,
+        })
+        .from(donators)
+        .where(eq(donators.tenantId, tenantId))
+        .orderBy(desc(donators.createdAt))
+        .limit(5),
+    ]);
+
+    const monthFormatter = new Intl.DateTimeFormat("pt-BR", { month: "short" });
+    const monthlyNewDonators = Array.from({ length: 12 }, (_, index) => ({
+      month: monthFormatter.format(new Date(now.getFullYear(), index, 1)).replace(".", ""),
+      total: Number(monthlyRows.find((row) => Number(row.month) === index + 1)?.total ?? 0),
+    }));
+
+    return {
+      metrics: {
+        activeDonators,
+        pendingExams,
+        inactivityRisk,
+        pendingVisits,
+      },
+      alerts: {
+        examsExpiringThisMonth: Number(examsExpiringRows[0]?.total ?? 0),
+        inactivatedThisWeek,
+        newWhatsappRegistrations,
+      },
+      monthlyNewDonators,
+      statusDistribution: statusRows.map((row) => ({
+        status: row.status,
+        total: Number(row.total),
+      })),
+      latestRegistrations: latestRegistrations as DonatorOverview["latestRegistrations"],
+    };
   }
 
   async update(

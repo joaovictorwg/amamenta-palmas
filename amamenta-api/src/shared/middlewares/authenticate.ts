@@ -2,10 +2,11 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { UserRole } from "@/modules/users/entities/users.entity";
 
 interface TokenPayload {
   sub: string;
-  role: "super_admin" | "admin" | "employee" | "donator";
+  role: UserRole;
   tenantId: string | null;
 }
 

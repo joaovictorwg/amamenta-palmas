@@ -9,6 +9,7 @@ import {
     triageRawMilkBatchController,
     updateRawMilkController,
 } from "../controllers/rawMilk.controller";
+import { getDonationOverviewController } from "../controllers/donationOverview.controller";
 import {
     createRawMilkSchema,
     rawMilkIdParamsSchema,
@@ -20,6 +21,8 @@ import {
 
 export async function rawMilkRoutes(app: FastifyInstance) {
      app.addHook("preHandler", authenticate);
+
+    app.get("/overview", getDonationOverviewController);
 
     app.post(
         "/raw-milk",

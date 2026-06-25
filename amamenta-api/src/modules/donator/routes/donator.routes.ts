@@ -7,6 +7,7 @@ import {
   getDonatorByIdController,
   GetDonatorsController,
 } from "../controllers/getDonator.controller";
+import { getDonatorOverviewController } from "../controllers/getDonatorOverview.controller";
 import { listDonatorExamsController } from "../controllers/listDonatorExams.controller";
 import { registerDonatorExamsController } from "../controllers/registerDonatorExams.controller";
 import { updateClinicalHistoryController } from "../controllers/updateClinicalHistory.controller";
@@ -34,6 +35,8 @@ export async function donatorRoutes(app: FastifyInstance) {
     { schema: { querystring: getDonatorsQuerySchema } },
     GetDonatorsController,
   );
+
+  app.get("/donators/overview", getDonatorOverviewController);
 
   app.get(
     "/donators/:id",

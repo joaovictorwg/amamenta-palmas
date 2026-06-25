@@ -1,4 +1,4 @@
-import { UserRole } from "@/modules/user/entities/users.entity";
+import { UserRole } from "@/modules/users/entities/users.entity";
 
 declare module "fastify" {
   interface FastifyRequest {

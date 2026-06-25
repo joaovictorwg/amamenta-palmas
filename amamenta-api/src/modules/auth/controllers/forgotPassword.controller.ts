@@ -3,13 +3,19 @@ import { ForgotPasswordUseCase } from "../use-cases/forgotPassowrdUseCase/forgot
 import { forgotPasswordSchema } from "../schemas/forgotPassword.schema";
 import { DrizzleUserRepository } from "@/modules/users/repositories/drizzleUser.repository";
 import { EmailService } from "@/shared/mail/email.service";
+import { DrizzleResetPwdMailRepository } from "../repositories/drizzleResetPwdMail.repository";
 
 export async function forgotPasswordController(request: FastifyRequest, reply: FastifyReply) {
     const { email } = forgotPasswordSchema.parse(request.body);
 
     const userRepository = new DrizzleUserRepository();
+    const resetPwdMailRepository = new DrizzleResetPwdMailRepository();
     const mailProvider = new EmailService();
-    const useCase = new ForgotPasswordUseCase(userRepository, mailProvider);
+    const useCase = new ForgotPasswordUseCase(
+        userRepository,
+        resetPwdMailRepository,
+        mailProvider,
+    );
 
     const lang = request.headers['accept-language']?.toString().startsWith('en') ? 'en' : 'pt';
 

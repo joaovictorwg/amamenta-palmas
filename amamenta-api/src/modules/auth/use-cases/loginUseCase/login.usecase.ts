@@ -47,6 +47,7 @@ export class AuthenticateUserUseCase {
         id: user.id,
         email: user.email,
         role: user.role,
+        tenantId: user.tenantId,
       },
     };
   }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { BrButton, BrCard, BrInput, BrLoading } from "@govbr-ds/react-components";
 import { useTranslation } from "react-i18next";
@@ -67,6 +68,9 @@ export default function LoginPage() {
                                     }
                                     }
                                 />
+                                <styled.ForgotPasswordLink>
+                                    <Link to="/forgot-password">Esqueci minha senha</Link>
+                                </styled.ForgotPasswordLink>
                                 <BrButton type="submit" primary >
                                     {t("amamenta.login")}
                                 </BrButton>

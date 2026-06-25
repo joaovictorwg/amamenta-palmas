@@ -27,7 +27,19 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             clearToken();
 
-            window.location.href = "/login";
+            const publicRoutes = [
+                "/login",
+                "/forgot-password",
+                "/reset-password",
+                "/accept-invite",
+            ];
+            const isPublicRoute = publicRoutes.some((route) =>
+                window.location.pathname.startsWith(route)
+            );
+
+            if (!isPublicRoute) {
+                window.location.href = "/login";
+            }
         }
 
         return Promise.reject(error);
