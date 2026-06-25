@@ -19,14 +19,13 @@ import RawMilkCollectionsPage from "@/pages/Default/Donations/RawMilkCollections
 import DonationsPage from "@/pages/Default/Donations/DonationsPage";
 import PasteurizedStockPage from "@/pages/Default/Donations/PasteurizedStockPage";
 import UserProfilePage from "@/pages/UserProfile/UserProfilePage";
+import PasteurizationBatchesPage from "@/pages/Default/Donations/PasteurizationBatchesPage";
 
 import {
   ALLOWED_DASHBOARD_ROLES,
   ALLOWED_SUPERADMIN_ROLES,
 } from "../constants/roles";
 import ProtectedRoute from "./ProtectedRoute";
-
-
 
 export const router = createBrowserRouter([
   {
@@ -79,18 +78,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "doacoes/coletas",
-       element: <RawMilkCollectionsPage />,
-        
+        element: <RawMilkCollectionsPage />,
       },
       {
         path: "doacoes/lotes",
-        element: (
-          <ModulePlaceholder
-            moduleNameKey="navigation.donations"
-            titleKey="navigation.batches"
-            descriptionKey="modulePlaceholder.donationBatches"
-          />
-        ),
+        element: <PasteurizationBatchesPage />,
       },
       {
         path: "doacoes/estoque",
